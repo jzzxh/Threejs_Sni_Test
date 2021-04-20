@@ -1,9 +1,40 @@
 var renderer, scene, camera, controls;
 var linePoints = [];
 var pLinePoints = [];
-var testPoints = [1, 2, 3];
-var testPoints2 = [];
-var count = 0;
+var lastChange;
+
+
+// Follow Path init
+var up = new THREE.Vector3(1, 0, 0);
+var axis = new THREE.Vector3();
+var marker;
+var pt, radians, axis, tangent, pathPxn;
+// the getPoint starting variable - !important - You get me ;)
+var t = 0; 
+
+
+
+function getCube() {
+  // cube mats and cube
+  var mats = [];
+  for (var i = 0; i < 6; i++) {
+    mats.push(
+      new THREE.MeshBasicMaterial({
+        color: Math.random() * 0xffffff,
+        opacity: 0.6,
+        transparent: true,
+      })
+    );
+  }
+
+  var cube = new THREE.Mesh(
+    new THREE.BoxGeometry(2, 2, 2),
+    mats
+  );
+
+  return cube;
+}
+
 
 function init() {
   const container = document.querySelector("#scene-container");
@@ -26,25 +57,34 @@ function init() {
   controls.minDistance = 10;
   controls.maxDistance = 50;
 
-  var mats = [];
-  for (var i = 0; i < 6; i++) {
-    mats.push(
-      new THREE.MeshBasicMaterial({
-        color: Math.random() * 0xffffff,
-        opacity: 0.6,
-        transparent: true,
-      })
-    );
-  }
+    ////////////////////////////////////////
+  //      Create the cube               //
+  ////////////////////////////////////////
 
-  const geometry = new THREE.BoxBufferGeometry(2, 2, 2);
+  marker = getCube();
+  marker.position.set(0, 0, 0);
+  scene.add(marker);
 
-  //   const material = new THREE.MeshBasicMaterial(mats);
-  const facematerial = new THREE.MeshFaceMaterial(mats);
 
-  const cube = new THREE.Mesh(geometry, facematerial);
+  // var mats = [];
+  // for (var i = 0; i < 6; i++) {
+  //   mats.push(
+  //     new THREE.MeshBasicMaterial({
+  //       color: Math.random() * 0xffffff,
+  //       opacity: 0.6,
+  //       transparent: true,
+  //     })
+  //   );
+  // }
 
-  scene.add(cube);
+  // const geometry = new THREE.BoxBufferGeometry(2, 2, 2);
+
+  // //   const material = new THREE.MeshBasicMaterial(mats);
+  // // const facematerial = new THREE.MeshBasicMaterial(mats); //dec
+
+  // const cube = new THREE.Mesh(geometry, mats);
+
+  // scene.add(cube);
 
   // Create Line
   //   const lineMaterial = new THREE.LineBasicMaterial({ color: 'red' });
@@ -62,15 +102,14 @@ function init() {
 
   // Load SVG file
   loadSVG("./runway2.svg");
-  
-  console.log("Count: " + count);
+
   //   LineCatmullroom();
 
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
   directionalLight.position.set(0.75, 0.75, 1.0).normalize();
   scene.add(directionalLight);
 
-  scene.add(new THREE.AxisHelper(10));
+  scene.add(new THREE.AxesHelper(10));
 
   const gridHelper = new THREE.GridHelper(22, 22);
   scene.add(gridHelper);
@@ -89,7 +128,7 @@ function init() {
 function loadSVG(url) {
   const loader = new THREE.SVGLoader();
 
-  loader.load(url, function (data) {
+  loader.load(url, function(data) {
     const paths = data.paths;
     const group = new THREE.Group();
     group.scale.multiplyScalar(0.005);
@@ -113,48 +152,37 @@ function loadSVG(url) {
 
         for (let k = 0, kl = subPath.getPoints().length; k < kl; k++) {
           linePoints.push([
-            subPath.getPoints()[k].x * 0.01,
-            subPath.getPoints()[k].y * 0.01,
+            subPath.getPoints()[k].x * 0.01 - 10,
+            subPath.getPoints()[k].y * 0.01 - 5,
           ]);
         }
 
-        const geometry = THREE.SVGLoader.pointsToStroke(
-          subPath.getPoints(),
-          path.userData.style
-        );
+        // const geometry = THREE.SVGLoader.pointsToStroke(
+        //   subPath.getPoints(),
+        //   path.userData.style
+        // );
 
-        if (geometry) {
-          const mesh = new THREE.Mesh(geometry, material);
-          group.add(mesh);
-        }
-        count += 1;
+        // if (geometry) {
+        //   const mesh = new THREE.Mesh(geometry, material);
+        //   group.add(mesh);
+        // }
       }
     }
 
-    pLinePoints = _.cloneDeep(linePoints);
-    console.log(linePoints.length);
-    
-
-    testPoints2 = _.cloneDeep(testPoints);
+    // pLinePoints = _.cloneDeep(linePoints);
+    // console.log(linePoints.length);
 
     scene.add(group);
   });
 
   // console.log("plinpoints: " + pLinePoints.length);
   // console.log("Test ponts: " + testPoints2.length);
-  
 }
 
 function LineCatmullroom() {
   //Hard coded array of points
 
-  var points = [
-    [0, 2],
-    [2, 10],
-    [-1, 15],
-    [-3, 20],
-    [0, 25],
-  ];
+  var points = [[0, 2], [2, 10], [-1, 15], [-3, 20], [0, 25]];
 
   //Convert the array of points into vertices
   //   for (var i = 0; i < points.length; i++) {
@@ -193,7 +221,67 @@ function LineCatmullroom() {
   //   scene.add(curveObject);
 }
 
+function lineDraw() {
+   
+  console.log(linePoints[0][0]); //Trick delay frame pass data to plinePoints.
+
+  for (var i = 0; i < linePoints.length; i++) {
+    var x = linePoints[i][0];
+    var y = 0;
+    var z = linePoints[i][1];
+    pLinePoints.push(new THREE.Vector3(x, y, z));
+  }
+}
+
 function render() {
+  // console.log(pLinePoints.length);
+
+  if (pLinePoints.length != lastChange) {
+    lineDraw();
+
+    console.log("pLinePlints: " + pLinePoints.length);
+    //console.log(pLinePoints);
+
+    if (pLinePoints.length > 0) {
+      //Create a path from the points
+       pathPxn = new THREE.CatmullRomCurve3(pLinePoints);
+      const pointsPTS = pathPxn.getPoints(100);
+      const geometry = new THREE.BufferGeometry().setFromPoints(pointsPTS);
+      const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+
+      // Create the final object to add to the scene
+      const curveObject = new THREE.Line(geometry, material);
+
+      scene.add(curveObject);
+    }
+
+    lastChange = pLinePoints.length;
+  }
+
+  if (pLinePoints.length > 0) {
+    // set the marker position
+    pt = pathPxn.getPoint(t);
+
+    // set the marker position
+    marker.position.set(pt.x, pt.y, pt.z);
+  
+    // get the tangent to the curve
+    tangent = pathPxn.getTangent(t).normalize();
+  
+    // calculate the axis to rotate around
+    axis.crossVectors(up, tangent).normalize();
+  
+    // calcluate the angle between the up vector and the tangent
+    // radians = Math.acos( up.dot( tangent ) );
+    radians = Math.acos(up.dot(tangent));
+  
+    // set the quaternion
+    marker.quaternion.setFromAxisAngle(axis, radians);
+  
+    t = t >= 1 ? 0 : (t += 0.001);
+
+  }
+
   renderer.render(scene, camera);
 }
 
