@@ -20,6 +20,16 @@ h1 {
   /* make sure that the heading is drawn on top */
   z-index: 1;
 }
+button {
+  /* position the heading */
+  position: absolute;
+  left:0;
+  top:50px;
+  
+
+  /* make sure that the heading is drawn on top */
+  z-index: 1;
+}
 
 #scene-container {
   /* tell our scene container to take up the full page */

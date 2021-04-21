@@ -12,11 +12,15 @@ var pt, radians, axis, tangent, pathPxn;
 
 // GLB file
 var mixer, clock, model;
-var group;
 var textDom;
+var action;
+
+//button start test
+var button_State = false;
 
 // the getPoint starting variable - !important - You get me ;)
-var t = 0.91;
+var t = 0.91; // start point half center
+var tc = 0;
 
 function getCube(color, size) {
   // cube mats and cube
@@ -55,7 +59,7 @@ function init() {
   controls = new THREE.OrbitControls(camera, container);
   controls.addEventListener("change", render); // use if there is no animation loop
   controls.minDistance = 10;
-  controls.maxDistance = 50;
+  controls.maxDistance = 80;
 
   ////////////////////////////////////////
   //      Create the cube               //
@@ -68,47 +72,37 @@ function init() {
   // Load SVG file
   loadSVG("./runway2.svg"); // runway2
 
-  //   LineCatmullroom();
+  // quick test
+  const butObj = document.querySelector(".btn");
+  butObj.style.left = String(container.clientWidth / 2 - 25) + "px";
+
+  butObj.addEventListener("click", function (e) {
+    // Event listener
+    action.play();
+    button_State = true;
+    t = 0.91;
+    tc = 0;
+    console.log("Fire.!");
+  });
+
+  // end quick test
 
   ///////////////////////
   //  Load GLTF FILE   //
   ///////////////////////
-  const loader = new THREE.GLTFLoader();
-  // group = new THREE.Group();
   clock = new THREE.Clock();
-  // Load a glTF resource
-  loader.load(
-    // resource URL
-    "model/horse2.glb",
-    // called when the resource is loaded
-    function(gltf) {
-      model = gltf.scene;
-      model.scale.set(0.2, 0.2, 0.2); // scale here
+  loadGLB("model/Horsew2.gltf", 0.03); //horse2.glb(0.2),  Horsew2.gltf(0.03)
 
-      mixer = new THREE.AnimationMixer(model);
-      var action = mixer.clipAction(gltf.animations[0]);
-      action.play();
-
-      // scene.add(model);
-      scene.add(model);
-    },
-    // called while loading is progressing
-    function(xhr) {
-      console.log(xhr.loaded / xhr.total * 100 + "% loaded");
-    },
-    // called when loading has errors
-    function(error) {
-      console.log("An error happened");
-    }
-  );
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-  directionalLight.position.set(0.75, 0.75, -1.0).normalize();
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+  directionalLight.position.set(10, 10, 10).normalize();
   scene.add(directionalLight);
 
-  const directionalLight2 = new THREE.DirectionalLight(0xffffff, 2);
-  directionalLight2.position.set(0.75, 0.75, 1.0).normalize();
+  const directionalLight2 = new THREE.DirectionalLight(0xffffff, 5);
+  directionalLight2.position.set(10, 10, -10).normalize();
   scene.add(directionalLight2);
+
+  const light = new THREE.AmbientLight(0x404040, 1); // soft white light
+  scene.add(light);
 
   scene.add(new THREE.AxesHelper(10));
 
@@ -131,73 +125,57 @@ function init() {
   // renderer.render(scene, camera);
 }
 
+function loadGLB(path, size) {
+  const loader = new THREE.GLTFLoader();
+  // Load a glTF resource
+  loader.load(
+    // resource URL
+    path,
+    // called when the resource is loaded
+    function (gltf) {
+      model = gltf.scene;
+      model.scale.set(size, size, size); // scale here 0.2
+
+      mixer = new THREE.AnimationMixer(model);
+      action = mixer.clipAction(gltf.animations[0]);
+      action.timeScale = 1;
+      action.stop();
+
+      // scene.add(model);
+      scene.add(model);
+    },
+    // called while loading is progressing
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    // called when loading has errors
+    function (error) {
+      console.log("An error happened");
+    }
+  );
+}
+
 function loadSVG(url) {
   const loader = new THREE.SVGLoader();
 
-  loader.load(url, function(data) {
+  loader.load(url, function (data) {
     const paths = data.paths;
 
     for (let i = 0; i < paths.length; i++) {
       const path = paths[i];
-
-      const material = new THREE.MeshBasicMaterial({
-        color: "red",
-        side: THREE.DoubleSide,
-        depthWrite: false,
-      });
 
       for (let j = 0, jl = path.subPaths.length; j < jl; j++) {
         const subPath = path.subPaths[j];
 
         for (let k = 0, kl = subPath.getPoints().length; k < kl; k++) {
           linePoints.push([
-            subPath.getPoints()[k].x * 0.01 - 10,
-            subPath.getPoints()[k].y * 0.01 - 5,
+            (subPath.getPoints()[k].x * 0.01 - 9.5) * 0.8, //Path ScaleX
+            (subPath.getPoints()[k].y * 0.01 - 6) * 0.8, //Path ScaleY
           ]);
         }
       }
     }
   });
-}
-
-function LineCatmullroom() {
-  //Hard coded array of points
-  // var points = [
-  //   [0, 2],
-  //   [2, 10],
-  //   [-1, 15],
-  //   [-3, 20],
-  //   [0, 25],
-  // ];
-  //Convert the array of points into vertices
-  //   for (var i = 0; i < points.length; i++) {
-  //     var x = points[i][0];
-  //     var y = 0;
-  //     var z = points[i][1];
-  //     points[i] = new THREE.Vector3(x, y, z);
-  //   }
-  // for (var i = 0; i < linePoints.length; i++) {
-  //     var x = linePoints[i][0];
-  //     var y = 0;
-  //     var z = linePoints[i][1] ;
-  //     pLinePoints.push(new THREE.Vector3(x, y, z));
-  //   }
-  //Create a path from the points
-  //   var path = new THREE.CatmullRomCurve3(points);
-  //   var geometry = new THREE.TubeGeometry(path, 64, 2, 8, false);
-  //Basic red material
-  //   var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-  //Create a mesh
-  //   var tube = new THREE.Mesh(geometry, material);
-  //Add tube into the scene
-  //   scene.add(tube);
-  //   const pathPxn = new THREE.CatmullRomCurve3(linePoints);
-  //   const pointsPTS = pathPxn.getPoints(50);
-  //   const geometry = new THREE.BufferGeometry().setFromPoints(pointsPTS);
-  //   const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
-  //   // Create the final object to add to the scene
-  //   const curveObject = new THREE.Line(geometry, material);
-  //   scene.add(curveObject);
 }
 
 function lineDraw() {
@@ -223,32 +201,32 @@ function render() {
     if (pLinePoints.length > 0) {
       //Create a path from the points
       pathPxn = new THREE.CatmullRomCurve3(pLinePoints);
-      pointsPTS = pathPxn.getPoints(25);
+      pointsPTS = pathPxn.getPoints(100);
       const geometry = new THREE.BufferGeometry().setFromPoints(pointsPTS);
       const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
- 
+      // Create the final object to add to the scene
+      const curveObject = new THREE.Line(geometry, material);
+      scene.add(curveObject);
 
-      for (let i = 0, il = pointsPTS.length; i < il;i++) { // Create Path preview
+      // Create Path preview
+      for (let i = 0, il = pointsPTS.length; i < il; i++) {
         //const cubePoints = pathPxn.getPoints(205)[i];
         const cubePoints = pointsPTS[i];
-        
+
         viewMaker = getCube("gold", 0.1);
         viewMaker.position.set(cubePoints.x, cubePoints.y, cubePoints.z);
         scene.add(viewMaker);
       }
-     // Create the final object to add to the scene
-      const curveObject = new THREE.Line(geometry, material);
 
-     // console.log(pathPxn.getPoints(205)[0].y);
-     
-    //  console.log(pointsPTS[0].x);
-     
-      scene.add(curveObject);
+      // console.log(pathPxn.getPoints(205)[0].y);
+
+      // console.log(pointsPTS[0].x);
     }
 
     lastChange = pLinePoints.length;
   }
 
+  // Animation Part
   if (pLinePoints.length > 0) {
     // set the marker position
     pt = pathPxn.getPoint(t);
@@ -268,13 +246,26 @@ function render() {
     // set the quaternion
     marker.quaternion.setFromAxisAngle(axis, radians);
     model.quaternion.setFromAxisAngle(axis, radians);
-    // model.rotation.y = -1.5;
-    //model.rotation.y = -1.5;
 
-    t = t >= 1 ? 0 : (t += 0.001);
+    if (button_State) {
+      // t = t >= 1 ? 0 : (t += 0.001);
+      // t = t >= 1 ? button_State = false : (t += 0.001);
+      if (t >= 1) {
+        t = 0;
+      } else {
+        t += 0.001;
+        tc += 0.001;
+      }
+
+      //start count
+      if (tc >= 1) {
+        button_State = false;
+        action.stop();
+      }
+
+      textDom.innerHTML = "Iter: " + tc.toFixed(2);
+    }
     // t = t <= -0.09 ? -0.09 : (t -= 0.001);
-
-    textDom.innerHTML = t;
   }
 
   // GLB Animation
