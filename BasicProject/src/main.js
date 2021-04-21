@@ -7,28 +7,31 @@ var lastChange;
 var up = new THREE.Vector3(1, 0, 0);
 var axis = new THREE.Vector3();
 var marker;
+var viewMaker;
 var pt, radians, axis, tangent, pathPxn;
 
 // GLB file
 var mixer, clock, model;
+var group;
+var textDom;
 
 // the getPoint starting variable - !important - You get me ;)
 var t = 0.91;
 
-function getCube() {
+function getCube(color, size) {
   // cube mats and cube
   var mats = [];
   for (var i = 0; i < 6; i++) {
     mats.push(
       new THREE.MeshBasicMaterial({
-        color: Math.random() * 0xffffff,
+        color: color,
         opacity: 0.6,
         transparent: true,
       })
     );
   }
 
-  var cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), mats);
+  var cube = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), mats);
 
   return cube;
 }
@@ -58,7 +61,7 @@ function init() {
   //      Create the cube               //
   ////////////////////////////////////////
 
-  marker = getCube();
+  marker = getCube("blue", 1);
   marker.position.set(0, 0, 0);
   scene.add(marker);
 
@@ -71,29 +74,30 @@ function init() {
   //  Load GLTF FILE   //
   ///////////////////////
   const loader = new THREE.GLTFLoader();
+  // group = new THREE.Group();
   clock = new THREE.Clock();
   // Load a glTF resource
   loader.load(
     // resource URL
-    "model/Horse.glb",
+    "model/horse2.glb",
     // called when the resource is loaded
-    function (gltf) {
+    function(gltf) {
       model = gltf.scene;
-      model.scale.set(0.02, 0.02, 0.02); // scale here
-      
+      model.scale.set(0.2, 0.2, 0.2); // scale here
+
       mixer = new THREE.AnimationMixer(model);
       var action = mixer.clipAction(gltf.animations[0]);
       action.play();
 
+      // scene.add(model);
       scene.add(model);
-
     },
     // called while loading is progressing
-    function (xhr) {
-      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    function(xhr) {
+      console.log(xhr.loaded / xhr.total * 100 + "% loaded");
     },
     // called when loading has errors
-    function (error) {
+    function(error) {
       console.log("An error happened");
     }
   );
@@ -111,6 +115,11 @@ function init() {
   const gridHelper = new THREE.GridHelper(22, 22);
   scene.add(gridHelper);
 
+  // Hmtl modify
+
+  textDom = document.querySelector(".pInfo");
+  // textDom.style = 'color:white'
+
   renderer = new THREE.WebGLRenderer();
 
   renderer.setSize(container.clientWidth, container.clientHeight);
@@ -125,7 +134,7 @@ function init() {
 function loadSVG(url) {
   const loader = new THREE.SVGLoader();
 
-  loader.load(url, function (data) {
+  loader.load(url, function(data) {
     const paths = data.paths;
 
     for (let i = 0; i < paths.length; i++) {
@@ -148,7 +157,6 @@ function loadSVG(url) {
         }
       }
     }
-
   });
 }
 
@@ -215,17 +223,26 @@ function render() {
     if (pLinePoints.length > 0) {
       //Create a path from the points
       pathPxn = new THREE.CatmullRomCurve3(pLinePoints);
-      pathPxn.curveType = "catmullrom";
-      pathPxn.closed = true;
-      pointsPTS = pathPxn.getPoints(205);
+      pointsPTS = pathPxn.getPoints(25);
       const geometry = new THREE.BufferGeometry().setFromPoints(pointsPTS);
       const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+ 
 
-      // Create the final object to add to the scene
+      for (let i = 0, il = pointsPTS.length; i < il;i++) { // Create Path preview
+        //const cubePoints = pathPxn.getPoints(205)[i];
+        const cubePoints = pointsPTS[i];
+        
+        viewMaker = getCube("gold", 0.1);
+        viewMaker.position.set(cubePoints.x, cubePoints.y, cubePoints.z);
+        scene.add(viewMaker);
+      }
+     // Create the final object to add to the scene
       const curveObject = new THREE.Line(geometry, material);
 
-      console.log(pathPxn);
-
+     // console.log(pathPxn.getPoints(205)[0].y);
+     
+    //  console.log(pointsPTS[0].x);
+     
       scene.add(curveObject);
     }
 
@@ -238,7 +255,7 @@ function render() {
 
     // set the marker position
     marker.position.set(pt.x, pt.y, pt.z);
-    model.position.set(pt.x,pt.y,pt.z);
+    model.position.set(pt.x, pt.y, pt.z);
     // get the tangent to the curve
     tangent = pathPxn.getTangent(t).normalize();
 
@@ -253,8 +270,11 @@ function render() {
     model.quaternion.setFromAxisAngle(axis, radians);
     // model.rotation.y = -1.5;
     //model.rotation.y = -1.5;
-     t = t >= 1 ? 0 : (t += 0.001);
+
+    t = t >= 1 ? 0 : (t += 0.001);
     // t = t <= -0.09 ? -0.09 : (t -= 0.001);
+
+    textDom.innerHTML = t;
   }
 
   // GLB Animation
