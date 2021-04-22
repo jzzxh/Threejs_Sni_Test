@@ -80,7 +80,7 @@ function init() {
   const butObj = document.querySelector(".btn");
   butObj.style.left = String(container.clientWidth / 2 - 25) + "px";
 
-  butObj.addEventListener("click", function(e) {
+  butObj.addEventListener("click", function (e) {
     // Event listener
     action.play();
     button_State = true;
@@ -109,7 +109,6 @@ function init() {
 
   console.log("--------------- Test Code");
   tTestObjs.push({ xec: lineObj });
-
   console.log(tTestObjs);
   // let tObj = lineObj[0][0];
   console.log(lineObj);
@@ -164,7 +163,7 @@ function loadGLB(path, size) {
     // resource URL
     path,
     // called when the resource is loaded
-    function(gltf) {
+    function (gltf) {
       model = gltf.scene;
       model.scale.set(size, size, size); // scale here 0.2
 
@@ -177,11 +176,11 @@ function loadGLB(path, size) {
       scene.add(model);
     },
     // called while loading is progressing
-    function(xhr) {
-      console.log(xhr.loaded / xhr.total * 100 + "% loaded");
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
     },
     // called when loading has errors
-    function(error) {
+    function (error) {
       console.log("An error happened");
     }
   );
@@ -190,7 +189,7 @@ function loadGLB(path, size) {
 function loadSVG(url) {
   const loader = new THREE.SVGLoader();
 
-  loader.load(url, function(data) {
+  loader.load(url, function (data) {
     const paths = data.paths;
 
     for (let i = 0; i < paths.length; i++) {
@@ -215,32 +214,43 @@ function loadSVG(url) {
   });
 }
 
+let pbj1 = [];
+let pbj2 = [];
+let pathOBjs = [pbj1, pbj2];
+let pathCatmullRoom = [];
+
 function lineDraw() {
   console.log(linePoints[0][0]); //Trick delay frame pass data to plinePoints.
+
   for (let s = 0; s < pathScalar.length; s++) {
     for (let i = 0; i < linePoints.length; i++) {
-      /*     var x = linePoints[i][0];
-    var y = 0;
-    var z = linePoints[i][1]; */
-      /* let lineObj = linePoints[i];
-    var x = lineObj.x * lineObj.scalar;
-    var y = 0;
-    var z = lineObj.y * lineObj.scalar; */
+      /*  var x = linePoints[i][0];
+          var y = 0;
+          var z = linePoints[i][1]; */
+      /*  let lineObj = linePoints[i];
+          var x = lineObj.x * lineObj.scalar;
+          var y = 0;
+          var z = lineObj.y * lineObj.scalar; */
+
       let lineObj = linePoints[i];
-      var x = lineObj.x * pathScalar[s];
-      var y = 0;
-      var z = lineObj.y * pathScalar[s];
+      let x = lineObj.x * pathScalar[s];
+      let y = 0;
+      let z = lineObj.y * pathScalar[s];
+
       pLinePoints.push(new THREE.Vector3(x, y, z));
+      pathOBjs[s].push(new THREE.Vector3(x, y, z));
     }
   }
 }
 
 function pLinePointObjPush() {
   for (let i = 0; i < pathScalar.length; i++) {
-    pathObjct.push({ Vec3: pLinePoints, scalar: pathScalar[i] });
+    // pathObjct.push({ Vec3: pLinePoints, scalar: pathScalar[i] });
+    pathCatmullRoom.push(new THREE.CatmullRomCurve3(pathOBjs[i]));
   }
 
-  console.log(pathObjct);
+  // console.log(pathOBjs[0]);
+  // console.log(pathCatmullRoom);
 }
 
 function render() {
@@ -254,23 +264,36 @@ function render() {
     //console.log(pLinePoints);
 
     if (pLinePoints.length > 0) {
-      //Create a path from the points
-      pathPxn = new THREE.CatmullRomCurve3(pLinePoints);
-      pointsPTS = pathPxn.getPoints(100);
-      const geometry = new THREE.BufferGeometry().setFromPoints(pointsPTS);
-      const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
-      // Create the final object to add to the scene
-      const curveObject = new THREE.Line(geometry, material);
-      scene.add(curveObject);
+      for (let j = 0; j < pathScalar.length; j++) {
+        //Create a path from the points
+        /*       pathPxn = new THREE.CatmullRomCurve3(pLinePoints);
+      pointsPTS = pathPxn.getPoints(100); */
 
-      // Create Path preview
-      for (let i = 0, il = pointsPTS.length; i < il; i++) {
+        let bpointPTS = pathCatmullRoom[j].getPoints(100);
+
+        // const geometry = new THREE.BufferGeometry().setFromPoints(pointsPTS);
+        const geometry = new THREE.BufferGeometry().setFromPoints(bpointPTS);
+        const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+        // Create the final object to add to the scene
+        const curveObject = new THREE.Line(geometry, material);
+        scene.add(curveObject);
+
+        // Create Path preview
+        /*       for (let i = 0, il = pointsPTS.length; i < il; i++) {
         //const cubePoints = pathPxn.getPoints(205)[i];
         const cubePoints = pointsPTS[i];
 
         viewMaker = getCube("gold", 0.1);
         viewMaker.position.set(cubePoints.x, cubePoints.y, cubePoints.z);
         scene.add(viewMaker);
+      } */
+        for (let i = 0, il = bpointPTS.length; i < il; i++) {
+          //const cubePoints = pathPxn.getPoints(205)[i];
+          const cubePoints = bpointPTS[i];
+          viewMaker = getCube("gold", 0.1);
+          viewMaker.position.set(cubePoints.x, cubePoints.y, cubePoints.z);
+          scene.add(viewMaker);
+        }
       }
 
       // console.log(pathPxn.getPoints(205)[0].y);
@@ -282,7 +305,8 @@ function render() {
   }
 
   // Animation Part
-  if (pLinePoints.length > 0) {
+
+  /*   if (pLinePoints.length > 0) {
     // set the marker position
     pt = pathPxn.getPoint(t);
 
@@ -318,10 +342,10 @@ function render() {
         action.stop();
       }
 
-      textDom.innerHTML = "Iter: " + tc.toFixed(2);
-    }
+      textDom.innerHTML = "Iter: " + tc.toFixed(2); 
     // t = t <= -0.09 ? -0.09 : (t -= 0.001);
   }
+} */
 
   // GLB Animation
   var delta = clock.getDelta();
