@@ -10,6 +10,10 @@ var marker;
 var viewMaker;
 var pt, radians, axis, tangent, pathPxn;
 
+// plinePoint Obj path
+var pathScalar = [0.8, 1.1];
+var pathObjct = [];
+
 // GLB file
 var mixer, clock, model;
 var textDom;
@@ -76,7 +80,7 @@ function init() {
   const butObj = document.querySelector(".btn");
   butObj.style.left = String(container.clientWidth / 2 - 25) + "px";
 
-  butObj.addEventListener("click", function (e) {
+  butObj.addEventListener("click", function(e) {
     // Event listener
     action.play();
     button_State = true;
@@ -85,6 +89,34 @@ function init() {
     console.log("Fire.!");
   });
 
+  // test data push array object
+  let tTestObjs = [];
+  let heyMe = [new THREE.Vector3(1, 1, 1), new THREE.Vector3(2, 2, 2)];
+  let obj1 = [],
+    obj2 = [];
+  let scaleValue = [0.8, 1.2];
+  let lineObj = [obj1, obj2];
+  for (let i = 0; i < lineObj.length; i++) {
+    lineObj[i].foo = [];
+    lineObj[i].bar = [];
+    lineObj[i].foo.push({
+      x: Math.random() * 1000,
+      y: Math.random() * 100,
+      scalar: scaleValue[i],
+    });
+    lineObj[i].bar.push({ Vec3: heyMe });
+  }
+
+  console.log("--------------- Test Code");
+  tTestObjs.push({ xec: lineObj });
+
+  console.log(tTestObjs);
+  // let tObj = lineObj[0][0];
+  console.log(lineObj);
+  // console.log(lineObj[0].foo[0].scalar);
+  console.log(lineObj[0].bar[0].Vec3[0]);
+  /* console.log(Math.ceil(tObj.x)); */
+  console.log("--------------- End Test Code");
   // end quick test
 
   ///////////////////////
@@ -132,7 +164,7 @@ function loadGLB(path, size) {
     // resource URL
     path,
     // called when the resource is loaded
-    function (gltf) {
+    function(gltf) {
       model = gltf.scene;
       model.scale.set(size, size, size); // scale here 0.2
 
@@ -145,11 +177,11 @@ function loadGLB(path, size) {
       scene.add(model);
     },
     // called while loading is progressing
-    function (xhr) {
-      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    function(xhr) {
+      console.log(xhr.loaded / xhr.total * 100 + "% loaded");
     },
     // called when loading has errors
-    function (error) {
+    function(error) {
       console.log("An error happened");
     }
   );
@@ -158,7 +190,7 @@ function loadGLB(path, size) {
 function loadSVG(url) {
   const loader = new THREE.SVGLoader();
 
-  loader.load(url, function (data) {
+  loader.load(url, function(data) {
     const paths = data.paths;
 
     for (let i = 0; i < paths.length; i++) {
@@ -168,10 +200,15 @@ function loadSVG(url) {
         const subPath = path.subPaths[j];
 
         for (let k = 0, kl = subPath.getPoints().length; k < kl; k++) {
-          linePoints.push([
+          /*           linePoints.push([
             (subPath.getPoints()[k].x * 0.01 - 9.5) * 0.8, //Path ScaleX
             (subPath.getPoints()[k].y * 0.01 - 6) * 0.8, //Path ScaleY
-          ]);
+          ]); */
+          linePoints.push({
+            x: subPath.getPoints()[k].x * 0.01 - 9.5,
+            y: subPath.getPoints()[k].y * 0.01 - 6,
+            scalar: 0.8,
+          });
         }
       }
     }
@@ -180,13 +217,30 @@ function loadSVG(url) {
 
 function lineDraw() {
   console.log(linePoints[0][0]); //Trick delay frame pass data to plinePoints.
-
-  for (var i = 0; i < linePoints.length; i++) {
-    var x = linePoints[i][0];
+  for (let s = 0; s < pathScalar.length; s++) {
+    for (let i = 0; i < linePoints.length; i++) {
+      /*     var x = linePoints[i][0];
     var y = 0;
-    var z = linePoints[i][1];
-    pLinePoints.push(new THREE.Vector3(x, y, z));
+    var z = linePoints[i][1]; */
+      /* let lineObj = linePoints[i];
+    var x = lineObj.x * lineObj.scalar;
+    var y = 0;
+    var z = lineObj.y * lineObj.scalar; */
+      let lineObj = linePoints[i];
+      var x = lineObj.x * pathScalar[s];
+      var y = 0;
+      var z = lineObj.y * pathScalar[s];
+      pLinePoints.push(new THREE.Vector3(x, y, z));
+    }
   }
+}
+
+function pLinePointObjPush() {
+  for (let i = 0; i < pathScalar.length; i++) {
+    pathObjct.push({ Vec3: pLinePoints, scalar: pathScalar[i] });
+  }
+
+  console.log(pathObjct);
 }
 
 function render() {
@@ -194,6 +248,7 @@ function render() {
 
   if (pLinePoints.length != lastChange) {
     lineDraw();
+    pLinePointObjPush();
 
     console.log("pLinePlints: " + pLinePoints.length);
     //console.log(pLinePoints);
