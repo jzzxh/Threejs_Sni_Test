@@ -4,27 +4,60 @@ var pLinePoints = [];
 var lastChange;
 
 // Follow Path init
-var up = new THREE.Vector3(1, 0, 0);
-var axis = new THREE.Vector3();
+// var up = new THREE.Vector3(1, 0, 0);
+// var axis = new THREE.Vector3();
+
+let tangent_1,tangent_2 
+let radians_1,radians_2;
+let up_1 = new THREE.Vector3(1, 0, 0);
+let up_2 = new THREE.Vector3(1, 0, 0);
+let axis_1 = new THREE.Vector3();
+let axis_2 = new THREE.Vector3();
+let pts_1,pts_2;
+
+var pathCalObj =[{
+  radians: radians_1,
+  tangent: tangent_1,
+  up: up_1,
+  axis: axis_1,
+  pts: pts_1
+},
+{
+  radians: radians_2,
+  tangent: tangent_2,
+  up: up_2,
+  axis: axis_2,
+  pts: pts_2
+}];
+
+
+
 var marker;
 var viewMaker;
-var pt, radians, axis, tangent, pathPxn;
+// var pt, radians, axis, tangent, pathPxn;
 
 // plinePoint Obj path
-var pathScalar = [0.8, 1.1];
+var pathScalar = [0.8, 1];
 var pathObjct = [];
 
 // GLB file
-var mixer, clock, model;
+var mixer, mixer2, clock;
+var modelPack = [];
+var model_1, model_2;
 var textDom;
-var action;
+var action_1, action_2;
 
 //button start test
 var button_State = false;
 
 // the getPoint starting variable - !important - You get me ;)
-var t = 0.91; // start point half center
+var tsObj = [
+  { moveT: 0.91, CountT: 0, Speed: 0.001 },
+  { moveT: 0.91, CountT: 0, Speed: 0.001 },
+]; // start point half center
+var t = 0.91;
 var tc = 0;
+var incSpeed = [0.0015, 0.001]; // difference Speed
 
 function getCube(color, size) {
   // cube mats and cube
@@ -65,6 +98,12 @@ function init() {
   controls.minDistance = 10;
   controls.maxDistance = 80;
 
+  // Setup random Speed
+  tsObj[0].Speed = incSpeed[0];
+  tsObj[1].Speed = incSpeed[1];
+
+  console.log(tsObj);
+
   ////////////////////////////////////////
   //      Create the cube               //
   ////////////////////////////////////////
@@ -80,12 +119,14 @@ function init() {
   const butObj = document.querySelector(".btn");
   butObj.style.left = String(container.clientWidth / 2 - 25) + "px";
 
-  butObj.addEventListener("click", function (e) {
+  butObj.addEventListener("click", function(e) {
     // Event listener
-    action.play();
+    action_1.play();
     button_State = true;
     t = 0.91;
     tc = 0;
+
+    action_2.play();
     console.log("Fire.!");
   });
 
@@ -122,7 +163,25 @@ function init() {
   //  Load GLTF FILE   //
   ///////////////////////
   clock = new THREE.Clock();
-  loadGLB("model/Horsew2.gltf", 0.03); //horse2.glb(0.2),  Horsew2.gltf(0.03)
+
+  loadModel("model/horse2.glb").then(result => {
+    model_2 = result.scene;
+    mixer2 = new THREE.AnimationMixer(model_2);
+    action_2 = mixer2.clipAction(result.animations[0]);
+    action_2.timeScale = 1;
+    action_2.stop();
+    model_2.scale.set(0.15, 0.15, 0.15);
+    model_2.position.set(0, 0, 0);
+    modelPack.push(model_2);
+    scene.add(model_2);
+  });
+
+  loadGLB("model/Horsew2.gltf", 0.02); //horse2.glb(0.2),  Horsew2.gltf(0.03)
+
+  /*   Promise.all(p1).then(() => {
+    model_2.position.set(0, 0, 0);
+    scene.add(model_2);
+  }); */
 
   const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
   directionalLight.position.set(10, 10, 10).normalize();
@@ -156,6 +215,12 @@ function init() {
   // renderer.render(scene, camera);
 }
 
+function loadModel(url) {
+  return new Promise(resolve => {
+    new THREE.GLTFLoader().load(url, resolve);
+  });
+}
+
 function loadGLB(path, size) {
   const loader = new THREE.GLTFLoader();
   // Load a glTF resource
@@ -163,25 +228,16 @@ function loadGLB(path, size) {
     // resource URL
     path,
     // called when the resource is loaded
-    function (gltf) {
-      model = gltf.scene;
-      model.scale.set(size, size, size); // scale here 0.2
+    function(gltf) {
+      model_1 = gltf.scene;
+      model_1.scale.set(size, size, size); // scale here 0.2
 
-      mixer = new THREE.AnimationMixer(model);
-      action = mixer.clipAction(gltf.animations[0]);
-      action.timeScale = 1;
-      action.stop();
-
-      // scene.add(model);
-      scene.add(model);
-    },
-    // called while loading is progressing
-    function (xhr) {
-      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-    },
-    // called when loading has errors
-    function (error) {
-      console.log("An error happened");
+      mixer = new THREE.AnimationMixer(model_1);
+      action_1 = mixer.clipAction(gltf.animations[0]);
+      action_1.timeScale = 1;
+      action_1.stop();
+      modelPack.push(model_1);
+      scene.add(model_1);
     }
   );
 }
@@ -189,7 +245,7 @@ function loadGLB(path, size) {
 function loadSVG(url) {
   const loader = new THREE.SVGLoader();
 
-  loader.load(url, function (data) {
+  loader.load(url, function(data) {
     const paths = data.paths;
 
     for (let i = 0; i < paths.length; i++) {
@@ -216,7 +272,7 @@ function loadSVG(url) {
 
 let pbj1 = [];
 let pbj2 = [];
-let pathOBjs = [pbj1, pbj2];
+let pathOBjs = [pbj1, pbj2]; //number of path nedd create equal empty obj
 let pathCatmullRoom = [];
 
 function lineDraw() {
@@ -260,8 +316,7 @@ function render() {
     lineDraw();
     pLinePointObjPush();
 
-    console.log("pLinePlints: " + pLinePoints.length);
-    //console.log(pLinePoints);
+    console.log(modelPack);
 
     if (pLinePoints.length > 0) {
       for (let j = 0; j < pathScalar.length; j++) {
@@ -306,51 +361,73 @@ function render() {
 
   // Animation Part
 
-  /*   if (pLinePoints.length > 0) {
+  if (pLinePoints.length > 0) {
+    // for (let j = 0; j < pathScalar.length; j++) {
     // set the marker position
-    pt = pathPxn.getPoint(t);
+    /*     pt = pathPxn.getPoint(t);
 
     // set the marker position
     marker.position.set(pt.x, pt.y, pt.z);
-    model.position.set(pt.x, pt.y, pt.z);
-    // get the tangent to the curve
-    tangent = pathPxn.getTangent(t).normalize();
+    model.position.set(pt.x, pt.y, pt.z); */
 
-    // calculate the axis to rotate around
-    axis.crossVectors(up, tangent).normalize();
+  //  for (let i = 0; i < pathScalar.length; i++) {
 
-    // calcluate the angle between the up vector and the tangent
-    radians = Math.acos(up.dot(tangent));
+      for (let s = 0; s < tsObj.length ; s++) {
 
-    // set the quaternion
-    marker.quaternion.setFromAxisAngle(axis, radians);
-    model.quaternion.setFromAxisAngle(axis, radians);
+        let pts = pathCatmullRoom[s].getPoint(tsObj[s].moveT);
+        marker.position.set(pts.x, pts.y, pts.z);
+        modelPack[s].position.set(pts.x, pts.y, pts.z);
+        /* pathCalObj[s].pts = pathCatmullRoom[s].getPoint(tsObj[s].moveT);
+        marker.position.set(pathCalObj[s].pts.x, pathCalObj[s].pts.y, pathCalObj[s].pts.z);
+        modelPack[s].position.set(pathCalObj[s].pts.x, pathCalObj[s].pts.y, pathCalObj[s].pts.z); */
 
-    if (button_State) {
-      // t = t >= 1 ? 0 : (t += 0.001);
-      // t = t >= 1 ? button_State = false : (t += 0.001);
-      if (t >= 1) {
-        t = 0;
-      } else {
-        t += 0.001;
-        tc += 0.001;
+        // get the tangent to the curve
+        // tangent = pathPxn.getTangent(t).normalize();
+        pathCalObj[s].tangent = pathCatmullRoom[s].getTangent(tsObj[s].moveT).normalize();
+
+        // calculate the axis to rotate around
+        pathCalObj[s].axis.crossVectors(pathCalObj[s].up, pathCalObj[s].tangent).normalize();
+
+        // calcluate the angle between the up vector and the tangent
+        pathCalObj[s].radians = Math.acos(pathCalObj[s].up.dot(pathCalObj[s].tangent));
+
+        // set the quaternion
+        marker.quaternion.setFromAxisAngle(pathCalObj[s].axis, pathCalObj[s].radians);
+        modelPack[s].quaternion.setFromAxisAngle(pathCalObj[s].axis, pathCalObj[s].radians);
+
+        if (button_State) {
+          // t = t >= 1 ? 0 : (t += 0.001);
+          // t = t >= 1 ? button_State = false : (t += 0.001);
+          if (tsObj[s].moveT >= 1) {
+            tsObj[s].moveT = 0;
+          } else {
+            tsObj[s].moveT += tsObj[s].Speed;
+            tsObj[s].CountT += tsObj[s].Speed;
+          }
+
+          //start count
+          if (tsObj[s].CountT >= 1) {
+           
+            action_1.stop();
+            action_2.stop();
+            console.log('Win: '+s);
+            
+            button_State = false;
+          }
+
+           textDom.innerHTML = "Iter: " + tsObj[0].CountT.toFixed(2);
+          // t = t <= -0.09 ? -0.09 : (t -= 0.001);
+        }
       }
-
-      //start count
-      if (tc >= 1) {
-        button_State = false;
-        action.stop();
-      }
-
-      textDom.innerHTML = "Iter: " + tc.toFixed(2); 
-    // t = t <= -0.09 ? -0.09 : (t -= 0.001);
+    //}
+    // }
   }
-} */
 
   // GLB Animation
   var delta = clock.getDelta();
 
   if (mixer) mixer.update(delta);
+  if (mixer2) mixer2.update(delta);
 
   renderer.render(scene, camera);
 }
