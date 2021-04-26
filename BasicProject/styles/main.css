@@ -43,3 +43,10 @@ button {
   */
   background-color: skyblue;
 }
+
+#stats {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
