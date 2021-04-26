@@ -383,17 +383,19 @@ function render() {
 
         // get the tangent to the curve
         // tangent = pathPxn.getTangent(t).normalize();
-        pathCalObj[s].tangent = pathCatmullRoom[s].getTangent(tsObj[s].moveT).normalize();
+        var up = new THREE.Vector3(1, 0, 0);
+        var axis = new THREE.Vector3();
+        let tangent = pathCatmullRoom[s].getTangent(tsObj[s].moveT).normalize();
 
         // calculate the axis to rotate around
-        pathCalObj[s].axis.crossVectors(pathCalObj[s].up, pathCalObj[s].tangent).normalize();
+        axis.crossVectors(up, tangent).normalize();
 
         // calcluate the angle between the up vector and the tangent
-        pathCalObj[s].radians = Math.acos(pathCalObj[s].up.dot(pathCalObj[s].tangent));
+        let radians = Math.acos(up.dot(tangent));
 
         // set the quaternion
-        marker.quaternion.setFromAxisAngle(pathCalObj[s].axis, pathCalObj[s].radians);
-        modelPack[s].quaternion.setFromAxisAngle(pathCalObj[s].axis, pathCalObj[s].radians);
+        marker.quaternion.setFromAxisAngle(axis, radians);
+        modelPack[s].quaternion.setFromAxisAngle(axis, radians);
 
         if (button_State) {
           // t = t >= 1 ? 0 : (t += 0.001);
