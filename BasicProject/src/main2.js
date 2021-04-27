@@ -4,10 +4,21 @@ var delta;
 var clock;
 var statsUI;
 var lastChange = false;
-var w
+var modelFile = ["model/horse2.glb", "model/horse3_green.glb"];
+var svgFile = ["./runway2.svg", "./runway2_1.svg"];
+var svgScalar = [1, 1];
+var randSpeed = [
+  // random speed array
+  [0.001, 0.0013],
+  [0.0005, 0.0012],
+  [0.001, 0.0009],
+  [0.0003, 0.0005],
+];
+var winnerCheck = true;
 
 // temp data
-// var x = 0;
+var imgShow;
+var imgList = ['./image/horsew0.png','./image/horsew1.png'];
 
 function init() {
   const container = document.querySelector("#scene-container");
@@ -18,7 +29,7 @@ function init() {
   const fov = 35;
   const aspect = container.clientWidth / container.clientHeight;
   const near = 0.1;
-  const far = 100;
+  const far = 1000;
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.set(0, 8, 30);
 
@@ -26,10 +37,17 @@ function init() {
   const butObj = document.querySelector(".btn");
   butObj.style.left = String(container.clientWidth / 2 - 25) + "px";
 
+  //imgShow
+  imgShow = document.querySelector("#imgshow");
+  imgShow.style.left = String(container.clientWidth / 2 - 240) + "px";
+  imgShow.style.top = String(container.clientHeight / 2 - 100) + "px";
+  imgShow.style.display = "none";
+  
+
   // controls
   controls = new THREE.OrbitControls(camera, container);
   controls.addEventListener("change", render); // use if there is no animation loop
-  controls.minDistance = 10;
+  controls.minDistance = 5;
   controls.maxDistance = 130;
 
   // init status
@@ -43,11 +61,15 @@ function init() {
 
   //* Custom Code
 
-  let HorseModel = new Horse();
-  HorseModel.GetModel("model/horse2.glb", new THREE.Vector3(0, 0, 0), 0.15);
-  HorseModel.GetSvgData("./runway2.svg", 0.8);
-  HorseObjectArr.push(HorseModel);
-  console.log(HorseObjectArr[0]);
+  let randArr = randSpeed[getRandomIntInclusive(0,2)];
+  for (let i = 0; i < modelFile.length; i++) {
+    let HorseModel = new Horse();
+    HorseModel.GetModel(modelFile[i], new THREE.Vector3(0, 0, 0), 0.15, randArr[i]);
+    HorseModel.GetSvgData(svgFile[i], svgScalar[i]);
+    HorseObjectArr.push(HorseModel);
+  }
+
+  console.log(HorseObjectArr);
 
   //* End Custom Code
 
@@ -80,83 +102,84 @@ function initStats() {
 
 function render() {
   //* iteration Once
-  if (HorseObjectArr[0].readState != lastChange) {
-    HorseObjectArr[0].updatePosition(new THREE.Vector3(-10, 0, 0));
-    HorseObjectArr[0].action.play();
-    HorseObjectArr[0].SetCatMullPath();
 
-    console.log("readState bang");
+  // if (HorseObjectArr[0].readState != lastChange) {
+  if (allEqual(HorseObjectArr) != lastChange) {
+    for (let ik = 0; ik < HorseObjectArr.length; ik++) {
+      HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
+      HorseObjectArr[ik].action.play();
+      HorseObjectArr[ik].SetCatMullPath();
 
-    // console.log(HorseObjectArr[0].catmullRoomPath.getPoints(10));
+      // console.log(HorseObjectArr[0].catmullRoomPath.getPoints(10));
 
-    // Visual Path Cube
-    // Test Cube
-    let vCube = new VisCube();
+      // Visual Path Cube
+      let vCube = new VisCube();
+      for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
+        let VecX = HorseObjectArr[ik].path[i].x;
+        let VecY = 0;
+        let VecZ = HorseObjectArr[ik].path[i].z;
 
-    for (let i = 0; i < HorseObjectArr[0].path.length; i++) {
-      let VecX = HorseObjectArr[0].path[i].x;
-      let VecY = 0;
-      let VecZ = HorseObjectArr[0].path[i].z;
+        vCube.getCube("gold", 0.1, new THREE.Vector3(VecX, VecY, VecZ));
+      }
 
-      vCube.getCube("gold", 0.1, new THREE.Vector3(VecX, VecY, VecZ));
+      /* console.log(HorseObjectArr[0].path[0]); */
+
+      // lastChange = HorseObjectArr[0].readState;
+      lastChange = allEqual(HorseObjectArr);
     }
-
-    /* console.log(HorseObjectArr[0].path[0]); */
-
-    lastChange = HorseObjectArr[0].readState;
+    console.log("readState bang");
   }
 
-  if (HorseObjectArr[0].readState) {    //* Loop Condition
-
-    HorseObjectArr[0].updateRun();
-
-/*      let pts = HorseObjectArr[0].catmullRoomPath.getPoint(HorseObjectArr[0].move);
-
-      HorseObjectArr[0].updatePosition(new THREE.Vector3(pts.x, pts.y, pts.z));
-
-      let up = new THREE.Vector3(1, 0, 0);
-      let axis = new THREE.Vector3();
-      let tangent = HorseObjectArr[0].catmullRoomPath.getTangent(HorseObjectArr[0].move).normalize();
-      axis.crossVectors(up, tangent).normalize();
-      // calcluate the angle between the up vector and the tangent
-      let radians = Math.acos(up.dot(tangent));
-
-      HorseObjectArr[0].model.quaternion.setFromAxisAngle(axis, radians);
- 
-  
-    // Moving Condition
-    if(HorseObjectArr[0].move >= 1){
-      HorseObjectArr[0].move = 0;
-    }else{
-      HorseObjectArr[0].move += HorseObjectArr[0].speed;
-      HorseObjectArr[0].moveCount += HorseObjectArr[0].speed;
+  if (allEqual(HorseObjectArr)) {
+    //* Loop Condition
+    for (let j = 0; j < HorseObjectArr.length; j++) {
+      HorseObjectArr[j].updateRun();
     }
+  }
 
+  // Winner Checks
+  if(winnerCheck){
+    for(let i = 0;i<HorseObjectArr.length;i++){
+      let winObj = HorseObjectArr[i];
+      if(winObj.winState){
+        console.log('Winner is: --> ' + i);
+        winnerCheck = false;
 
-    if(HorseObjectArr[0].moveCount >= 1){
+        // quick Test image appendChilds
 
-
-    } */
-
-    // console.log('moveing: ' + HorseObjectArr[0].moveCount);
-
- /*    x += 0.05;
-
-    x > 10
-      ? (x = -5)
-      : HorseObjectArr[0].updatePosition(new THREE.Vector3(x, 0, 0)); */
+        let elem = document.createElement("img");
+        elem.setAttribute("src",imgList[i]);
+        document.getElementById("imgshow").appendChild(elem);
+        imgShow.style.display = "block";
+      }
+    }
   }
 
   // GLB Animation
   delta = clock.getDelta();
 
   for (let i = 0; i < HorseObjectArr.length; i++) {
-    let horseObj = HorseObjectArr[0];
+    let horseObj = HorseObjectArr[i];
     if (horseObj.mixer) horseObj.mixer.update(delta);
   }
 
   statsUI.update();
   renderer.render(scene, camera);
+}
+
+function allEqual(arr) {
+  // Checks array each slice all equal. object filter.
+  let krr = [];
+  for (let k of arr) {
+    krr.push(k.readState);
+  }
+  return new Set(krr).size == 1;
+}
+
+function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
 }
 
 function animate() {

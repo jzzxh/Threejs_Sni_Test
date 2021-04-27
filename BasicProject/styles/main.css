@@ -23,10 +23,8 @@ h1 {
 button {
   /* position the heading */
   position: absolute;
-  left:0;
-  top:50px;
-  
-
+  left: 0;
+  top: 50px;
   /* make sure that the heading is drawn on top */
   z-index: 1;
 }
@@ -42,6 +40,13 @@ button {
     background to prevent flashing on load
   */
   background-color: skyblue;
+}
+
+#imgshow{
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
 }
 
 #stats {

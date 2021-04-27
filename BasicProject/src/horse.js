@@ -18,16 +18,17 @@ function Horse() {
   this.pathScalar = 0.8;
   this.readState = false; // Confirm State
   this.runState = true;
+  this.winState = false;
 }
 
-Horse.prototype.loadModel = function(url) {
-  return new Promise(resolve => {
+Horse.prototype.loadModel = function (url) {
+  return new Promise((resolve) => {
     new THREE.GLTFLoader().load(url, resolve);
   });
 };
 
-Horse.prototype.GetModel = function(url, position, scale) {
-  this.loadModel(url).then(result => {
+Horse.prototype.GetModel = function (url, position, scale,speed) {
+  this.loadModel(url).then((result) => {
     this.model = result.scene;
     this.mixer = new THREE.AnimationMixer(this.model);
     this.action = this.mixer.clipAction(result.animations[0]);
@@ -36,6 +37,7 @@ Horse.prototype.GetModel = function(url, position, scale) {
     this.scale = scale;
     this.model.scale.set(this.scale, this.scale, this.scale);
     this.position = position;
+    this.speed = speed;
     this.model.position.set(this.position.x, this.position.y, this.position.z);
     scene.add(this.model);
 
@@ -43,45 +45,43 @@ Horse.prototype.GetModel = function(url, position, scale) {
   });
 };
 
-Horse.prototype.updatePosition = function(position) {
+Horse.prototype.updatePosition = function (position) {
   this.position = position;
   this.model.position.set(this.position.x, this.position.y, this.position.z);
 };
 
 // SVGload Promise
-Horse.prototype.loadSVG = function(url) {
-  return new Promise(reslove => {
+Horse.prototype.loadSVG = function (url) {
+  return new Promise((reslove) => {
     new THREE.SVGLoader().load(url, reslove);
   });
 };
 
-Horse.prototype.GetSvgData = function(url, scalar) {
+Horse.prototype.GetSvgData = function (url, scalar) {
   this.scalar = scalar;
 
-  this.loadSVG(url).then(result => {
+  this.loadSVG(url).then((result) => {
     const paths = result.paths;
     for (let i = 0; i < paths.length; i++) {
       const path = paths[i];
       for (let j = 0, jl = path.subPaths.length; j < jl; j++) {
         const subPath = path.subPaths[j];
         for (let k = 0, kl = subPath.getPoints().length; k < kl; k++) {
-          let x = subPath.getPoints()[k].x * 0.01 - 9.5;
+          let x = (subPath.getPoints()[k].x * 0.01 - 9.55) * this.scalar;
           let y = 0;
-          let z = subPath.getPoints()[k].y * 0.01 - 6;
+          let z = (subPath.getPoints()[k].y * 0.01 - 5.8) * this.scalar;
           this.path.push(new THREE.Vector3(x, y, z));
-
-          // his.catmullRoomPath.push(new THREE.CatmullRomCurve3(new THREE.Vector3(x, y, z)));
         }
       }
     }
   });
 };
 
-Horse.prototype.SetCatMullPath = function() {
+Horse.prototype.SetCatMullPath = function () {
   this.catmullRoomPath = new THREE.CatmullRomCurve3(this.path);
 };
 
-Horse.prototype.updateRun = function() {
+Horse.prototype.updateRun = function () {
   // Move on the path
   let pts = this.catmullRoomPath.getPoint(this.move);
 
@@ -98,16 +98,18 @@ Horse.prototype.updateRun = function() {
 
   if (this.runState) {
     // Moving Condition
-    if (this.move >= 1) {
+    if (this.move >= 0.999999) { // 0.999999 to slove glitch when move on the path
       this.move = 0;
     } else {
       this.move += this.speed;
       this.moveCount += this.speed;
     }
   }
+
   // Win Checks
   if (this.moveCount >= 1) {
     this.runState = false;
     this.action.stop();
+    this.winState = true;
   }
 };
