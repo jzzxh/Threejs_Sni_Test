@@ -4,9 +4,10 @@ var delta;
 var clock;
 var statsUI;
 var lastChange = false;
+var w
 
 // temp data
-var x = 0;
+// var x = 0;
 
 function init() {
   const container = document.querySelector("#scene-container");
@@ -78,11 +79,15 @@ function initStats() {
 }
 
 function render() {
-  // iteration Once
+  //* iteration Once
   if (HorseObjectArr[0].readState != lastChange) {
     HorseObjectArr[0].updatePosition(new THREE.Vector3(-10, 0, 0));
     HorseObjectArr[0].action.play();
+    HorseObjectArr[0].SetCatMullPath();
+
     console.log("readState bang");
+
+    // console.log(HorseObjectArr[0].catmullRoomPath.getPoints(10));
 
     // Visual Path Cube
     // Test Cube
@@ -96,17 +101,50 @@ function render() {
       vCube.getCube("gold", 0.1, new THREE.Vector3(VecX, VecY, VecZ));
     }
 
-    console.log(HorseObjectArr[0].path[0]);
+    /* console.log(HorseObjectArr[0].path[0]); */
 
     lastChange = HorseObjectArr[0].readState;
   }
 
-  if (HorseObjectArr[0].readState) {
-    x += 0.05;
+  if (HorseObjectArr[0].readState) {    //* Loop Condition
+
+    HorseObjectArr[0].updateRun();
+
+/*      let pts = HorseObjectArr[0].catmullRoomPath.getPoint(HorseObjectArr[0].move);
+
+      HorseObjectArr[0].updatePosition(new THREE.Vector3(pts.x, pts.y, pts.z));
+
+      let up = new THREE.Vector3(1, 0, 0);
+      let axis = new THREE.Vector3();
+      let tangent = HorseObjectArr[0].catmullRoomPath.getTangent(HorseObjectArr[0].move).normalize();
+      axis.crossVectors(up, tangent).normalize();
+      // calcluate the angle between the up vector and the tangent
+      let radians = Math.acos(up.dot(tangent));
+
+      HorseObjectArr[0].model.quaternion.setFromAxisAngle(axis, radians);
+ 
+  
+    // Moving Condition
+    if(HorseObjectArr[0].move >= 1){
+      HorseObjectArr[0].move = 0;
+    }else{
+      HorseObjectArr[0].move += HorseObjectArr[0].speed;
+      HorseObjectArr[0].moveCount += HorseObjectArr[0].speed;
+    }
+
+
+    if(HorseObjectArr[0].moveCount >= 1){
+
+
+    } */
+
+    // console.log('moveing: ' + HorseObjectArr[0].moveCount);
+
+ /*    x += 0.05;
 
     x > 10
       ? (x = -5)
-      : HorseObjectArr[0].updatePosition(new THREE.Vector3(x, 0, 0));
+      : HorseObjectArr[0].updatePosition(new THREE.Vector3(x, 0, 0)); */
   }
 
   // GLB Animation
