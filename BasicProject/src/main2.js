@@ -4,15 +4,21 @@ var delta;
 var clock;
 var statsUI;
 var lastChange = false;
-var modelFile = ["model/horse2.glb", "model/horse3_green.glb"];
-var svgFile = ["./runway2.svg", "./runway2_1.svg"];
-var svgScalar = [1, 1];
+var modelFile = [
+  "model/horse_orange.glb",
+  "model/horse_green.glb",
+  "model/horse_pink.glb",
+  "model/horse_yellow.glb",
+];
+var svgFile = ["svg/R1.svg", "svg/R2.svg", "svg/R3.svg", "svg/R4.svg"];
+var svgScalar = [1, 1, 1, 1];
 var randSpeed = [
   // random speed array
-  [0.001, 0.0013],
-  [0.0005, 0.0012],
-  [0.001, 0.0009],
-  [0.0003, 0.0005],
+  [0.001, 0.0013, 0.0005, 0.0009],
+  [0.0005, 0.0012, 0.0009, 0.0015],
+  [0.001, 0.0009, 0.0005, 0.0001],
+  [0.0003, 0.0005, 0.0001, 0.00012],
+  [0.0005, 0.00045, 0.0002, 0.00016],
 ];
 var winnerCheck = true;
 
@@ -21,7 +27,12 @@ var StartState = false;
 
 // temp data
 var imgShow;
-var imgList = ["./image/horsew0.png", "./image/horsew1.png"];
+var imgList = [
+  "./image/horsew0.png",
+  "./image/horsew1.png",
+  "./image/horsew2.png",
+  "./image/horsew3.png",
+];
 
 function init() {
   const container = document.querySelector("#scene-container");
@@ -39,16 +50,38 @@ function init() {
   // Start Button Position
   const butObj = document.querySelector(".btn");
   butObj.style.left = String(container.clientWidth / 2 - 25) + "px";
-  butObj.addEventListener("click", function(e) {
+  butObj.addEventListener("click", function (e) {
     // Event listener
     StartState = true;
     console.log("Fire.!");
   });
 
+  const GotitBut = document.querySelector(".onboarding-button");
+  GotitBut.addEventListener("click", function (e) {
+    const onBoardContainer = document.querySelector(".background-overlay");
+    const coords = { x: 0, y: 0 }; // Start at (0, 0)
+    const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+      .to({ x: 0, y: -1000 }, 2000) // Move to (300, 200) in 1 second.
+      .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+      .onUpdate(() => {
+        onBoardContainer.style.setProperty(
+          "transform",
+          `translate(${coords.x}px, ${coords.y}px)`
+        );
+      })
+      .start(); 
+    // onBoardContainer.style.display = "none";
+    console.log("onBoard Button Pressed!!");
+  });
+
+  // End Button
+
   //imgShow
   imgShow = document.querySelector("#imgshow");
-  imgShow.style.left = String(container.clientWidth / 2 - 240) + "px";
-  imgShow.style.top = String(container.clientHeight / 2 - 100) + "px";
+  // imgShow.style.left = String(container.clientWidth / 2 - 240) + "px";
+  imgShow.style.left = "0px";
+  // imgShow.style.top = String(container.clientHeight / 2 - 100) + "px";
+  imgShow.style.top = "50px";
   imgShow.style.display = "none";
 
   // controls
@@ -68,13 +101,14 @@ function init() {
 
   //* Custom Code
 
-  let randArr = randSpeed[getRandomIntInclusive(0, 2)];
+  let randArr = randSpeed[getRandomIntInclusive(0, 4)];
+  console.log(randArr);
   for (let i = 0; i < modelFile.length; i++) {
     let HorseModel = new Horse();
     HorseModel.GetModel(
       modelFile[i],
       new THREE.Vector3(0, 0, 0),
-      0.15,
+      0.13,
       randArr[i]
     );
     HorseModel.GetSvgData(svgFile[i], svgScalar[i]);
@@ -208,6 +242,7 @@ function getRandomIntInclusive(min, max) {
 function animate() {
   requestAnimationFrame(animate);
   render();
+  TWEEN.update();
 }
 
 init();

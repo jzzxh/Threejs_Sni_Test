@@ -4,7 +4,7 @@
 <head>
     <title>Basic</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta charset="UTF-8" />
     <link rel="shortcut icon" href="">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r127/three.min.js"></script>
@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js"></script>
     <script src="https://threejs.org/examples/js/loaders/SVGLoader.js"></script>
     <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script> -->
 
 
@@ -19,6 +20,15 @@
 </head>
 
 <body>
+
+    <div class="background-overlay hideable hideable--hidden" id="onboarding-background-html">
+        <div id="onboarding">
+            <img src="image/racing.png" id="onboarding-cover-image" class="no-select" />
+            <div id="onboarding-text-container">
+                <button class="onboarding-button">Got it</button>
+            </div>
+        </div>
+    </div>
 
     <h1 class='pInfo'>Iter: 0</h1>
     <button class='btn'>Start</button>
