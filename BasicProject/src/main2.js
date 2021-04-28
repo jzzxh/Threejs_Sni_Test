@@ -16,9 +16,12 @@ var randSpeed = [
 ];
 var winnerCheck = true;
 
+// Start Button State
+var StartState = false;
+
 // temp data
 var imgShow;
-var imgList = ['./image/horsew0.png','./image/horsew1.png'];
+var imgList = ["./image/horsew0.png", "./image/horsew1.png"];
 
 function init() {
   const container = document.querySelector("#scene-container");
@@ -36,13 +39,17 @@ function init() {
   // Start Button Position
   const butObj = document.querySelector(".btn");
   butObj.style.left = String(container.clientWidth / 2 - 25) + "px";
+  butObj.addEventListener("click", function(e) {
+    // Event listener
+    StartState = true;
+    console.log("Fire.!");
+  });
 
   //imgShow
   imgShow = document.querySelector("#imgshow");
   imgShow.style.left = String(container.clientWidth / 2 - 240) + "px";
   imgShow.style.top = String(container.clientHeight / 2 - 100) + "px";
   imgShow.style.display = "none";
-  
 
   // controls
   controls = new THREE.OrbitControls(camera, container);
@@ -61,10 +68,15 @@ function init() {
 
   //* Custom Code
 
-  let randArr = randSpeed[getRandomIntInclusive(0,2)];
+  let randArr = randSpeed[getRandomIntInclusive(0, 2)];
   for (let i = 0; i < modelFile.length; i++) {
     let HorseModel = new Horse();
-    HorseModel.GetModel(modelFile[i], new THREE.Vector3(0, 0, 0), 0.15, randArr[i]);
+    HorseModel.GetModel(
+      modelFile[i],
+      new THREE.Vector3(0, 0, 0),
+      0.15,
+      randArr[i]
+    );
     HorseModel.GetSvgData(svgFile[i], svgScalar[i]);
     HorseObjectArr.push(HorseModel);
   }
@@ -107,7 +119,6 @@ function render() {
   if (allEqual(HorseObjectArr) != lastChange) {
     for (let ik = 0; ik < HorseObjectArr.length; ik++) {
       HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
-      HorseObjectArr[ik].action.play();
       HorseObjectArr[ik].SetCatMullPath();
 
       // console.log(HorseObjectArr[0].catmullRoomPath.getPoints(10));
@@ -130,6 +141,16 @@ function render() {
     console.log("readState bang");
   }
 
+  // Start Run
+  if (allEqual(HorseObjectArr) && StartState) {
+    for (let i = 0; i < HorseObjectArr.length; i++) {
+      HorseObjectArr[i].runState = true;
+      HorseObjectArr[i].action.play();
+    }
+    console.log("StarState ---> True");
+    StartState = false;
+  }
+
   if (allEqual(HorseObjectArr)) {
     //* Loop Condition
     for (let j = 0; j < HorseObjectArr.length; j++) {
@@ -138,17 +159,19 @@ function render() {
   }
 
   // Winner Checks
-  if(winnerCheck){
-    for(let i = 0;i<HorseObjectArr.length;i++){
+  if (winnerCheck) {
+    for (let i = 0; i < HorseObjectArr.length; i++) {
       let winObj = HorseObjectArr[i];
-      if(winObj.winState){
-        console.log('Winner is: --> ' + i);
+      if (winObj.winState) {
+        console.log("Winner is: --> " + i);
         winnerCheck = false;
 
         // quick Test image appendChilds
 
         let elem = document.createElement("img");
-        elem.setAttribute("src",imgList[i]);
+        elem.setAttribute("src", imgList[i]);
+        elem.setAttribute("width", "50%");
+        elem.setAttribute("height", "auto");
         document.getElementById("imgshow").appendChild(elem);
         imgShow.style.display = "block";
       }
