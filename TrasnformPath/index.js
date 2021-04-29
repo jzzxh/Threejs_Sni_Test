@@ -152,12 +152,12 @@ function init() {
   ///////////////////////
   clock = new THREE.Clock();
 
-  loadModel("horse_orange.glb").then(result => {
+  loadModel("horse_orange.glb").then((result) => {
     model_2 = result.scene;
     mixer2 = new THREE.AnimationMixer(model_2);
     action_2 = mixer2.clipAction(result.animations[0]);
     action_2.timeScale = 1;
-    action_2.stop();
+    action_2.play();
     model_2.scale.set(0.15, 0.15, 0.15);
     model_2.position.set(0, 0, 0);
     modelPack.push(model_2);
@@ -195,7 +195,7 @@ function init() {
 }
 
 function loadModel(url) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     new THREE.GLTFLoader().load(url, resolve);
   });
 }
@@ -207,7 +207,7 @@ function loadGLB(path, size) {
     // resource URL
     path,
     // called when the resource is loaded
-    function(gltf) {
+    function (gltf) {
       model_1 = gltf.scene;
       model_1.scale.set(size, size, size); // scale here 0.2
 
@@ -224,7 +224,7 @@ function loadGLB(path, size) {
 function loadSVG(url) {
   const loader = new THREE.SVGLoader();
 
-  loader.load(url, function(data) {
+  loader.load(url, function (data) {
     const paths = data.paths;
 
     for (let i = 0; i < paths.length; i++) {
@@ -234,10 +234,6 @@ function loadSVG(url) {
         const subPath = path.subPaths[j];
 
         for (let k = 0, kl = subPath.getPoints().length; k < kl; k++) {
-          /*           linePoints.push([
-            (subPath.getPoints()[k].x * 0.01 - 9.5) * 0.8, //Path ScaleX
-            (subPath.getPoints()[k].y * 0.01 - 6) * 0.8, //Path ScaleY
-          ]); */
           linePoints.push({
             x: subPath.getPoints()[k].x * 0.01 - 9.5,
             y: subPath.getPoints()[k].y * 0.01 - 6,
@@ -259,14 +255,6 @@ function lineDraw() {
 
   for (let s = 0; s < pathScalar.length; s++) {
     for (let i = 0; i < linePoints.length; i++) {
-      /*  var x = linePoints[i][0];
-          var y = 0;
-          var z = linePoints[i][1]; */
-      /*  let lineObj = linePoints[i];
-          var x = lineObj.x * lineObj.scalar;
-          var y = 0;
-          var z = lineObj.y * lineObj.scalar; */
-
       let lineObj = linePoints[i];
       let x = lineObj.x * pathScalar[s];
       let y = 0;
@@ -306,7 +294,8 @@ function render() {
         const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
         // Create the final object to add to the scene
         curveObject = new THREE.Line(geometry, material);
-        curveObject.rotation.set(0.4, 0.3, 0.1);
+        curveObject.rotation.set(-0.3, 0, -0.2);
+        curveObject.position.set(10,0,0);
 
         scene.add(curveObject);
 
@@ -319,6 +308,8 @@ function render() {
         }
       }
     }
+
+
 
     lastChange = pLinePoints.length;
   }
@@ -339,7 +330,7 @@ function render() {
     let tangent = pathCatmullRoom[1].getTangent(tsObj[1].moveT).normalize();
 
     // calculate the axis to rotate around
-    axis.crossVectors(up, tangent).normalize();
+    axis.crossVectors(up, tangent).applyMatrix4(curveObject.matrixWorld).normalize();
 
     // calcluate the angle between the up vector and the tangent
     let radians = Math.acos(up.dot(tangent));
@@ -349,7 +340,7 @@ function render() {
     model_2.quaternion.setFromAxisAngle(axis, radians);
 
     // rotation curveObject
-/*     tc += 0.01;
+    /*     tc += 0.01;
     curveObject.rotation.set(tc, 0, 0); */
     /*  curveObject.rotation.set(1,0,0); */
 

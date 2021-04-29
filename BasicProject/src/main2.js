@@ -15,15 +15,29 @@ var svgScalar = [1, 1, 1, 1];
 var randSpeed = [
   // random speed array
   [0.001, 0.0013, 0.0005, 0.0009],
-  [0.0005, 0.0012, 0.0009, 0.0015],
-  [0.001, 0.0009, 0.0005, 0.0001],
-  [0.0003, 0.0005, 0.0001, 0.00012],
-  [0.0005, 0.00045, 0.0002, 0.00016],
+  [0.0008, 0.0012, 0.0009, 0.00135],
+  [0.001, 0.0009, 0.0005, 0.0006],
+  [0.0003, 0.0005, 0.00025, 0.0004],
+  [0.0008, 0.00052, 0.00045, 0.00066],
+];
+var randTiemScale = [
+  // random Time Scale
+  [0.9, 1, 0.5, 0.52],
+  [0.5, 1, 0.9, 1.3],
+  [1, 0.9, 0.5, 0.75],
+  [0.8, 0.9, 0.85, 1.5],
+  [0.85, 0.5, 0.5, 0.6],
 ];
 var winnerCheck = true;
 
+// winOrder Checks
+var winOrderCount = 0;
+
 // Start Button State
 var StartState = false;
+
+// Visual Line Object
+var vLine;
 
 // temp data
 var imgShow;
@@ -61,7 +75,7 @@ function init() {
     const onBoardContainer = document.querySelector(".background-overlay");
     const coords = { x: 0, y: 0 }; // Start at (0, 0)
     const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-      .to({ x: 0, y: -1000 }, 2000) // Move to (300, 200) in 1 second.
+      .to({ x: 0, y: -1000 }, 1000) // Move to (300, 200) in 1 second.
       .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
       .onUpdate(() => {
         onBoardContainer.style.setProperty(
@@ -69,7 +83,7 @@ function init() {
           `translate(${coords.x}px, ${coords.y}px)`
         );
       })
-      .start(); 
+      .start();
     // onBoardContainer.style.display = "none";
     console.log("onBoard Button Pressed!!");
   });
@@ -102,14 +116,17 @@ function init() {
   //* Custom Code
 
   let randArr = randSpeed[getRandomIntInclusive(0, 4)];
+  let randtimescaleArr = randTiemScale[getRandomIntInclusive(0, 4)];
   console.log(randArr);
+  console.log(randtimescaleArr);
   for (let i = 0; i < modelFile.length; i++) {
     let HorseModel = new Horse();
     HorseModel.GetModel(
       modelFile[i],
       new THREE.Vector3(0, 0, 0),
       0.13,
-      randArr[i]
+      randArr[i],
+      randtimescaleArr[i]
     );
     HorseModel.GetSvgData(svgFile[i], svgScalar[i]);
     HorseObjectArr.push(HorseModel);
@@ -128,7 +145,7 @@ function init() {
   directionalLight2.position.set(10, 10, -10).normalize();
   scene.add(directionalLight2);
 
-  const light = new THREE.AmbientLight(0x404040, 0.8); // soft white light
+  const light = new THREE.AmbientLight(0x404040, 5); // soft white light
   scene.add(light);
 
   renderer = new THREE.WebGLRenderer();
@@ -148,17 +165,22 @@ function initStats() {
 
 function render() {
   //* iteration Once
-
   // if (HorseObjectArr[0].readState != lastChange) {
   if (allEqual(HorseObjectArr) != lastChange) {
     for (let ik = 0; ik < HorseObjectArr.length; ik++) {
-      HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
       HorseObjectArr[ik].SetCatMullPath();
+      HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
 
       // console.log(HorseObjectArr[0].catmullRoomPath.getPoints(10));
 
       // Visual Path Cube
       let vCube = new VisCube();
+      // visual Path Line
+      vLine = new VisCube();
+      vLine.getLine(HorseObjectArr[ik].catmullRoomPath);
+      vLine.curveObject.rotation.set(0.5, 0, 0);
+      // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
+
       for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
         let VecX = HorseObjectArr[ik].path[i].x;
         let VecY = 0;
@@ -188,7 +210,7 @@ function render() {
   if (allEqual(HorseObjectArr)) {
     //* Loop Condition
     for (let j = 0; j < HorseObjectArr.length; j++) {
-      HorseObjectArr[j].updateRun();
+      HorseObjectArr[j].updateRun(vLine.curveObject);
     }
   }
 
@@ -196,19 +218,24 @@ function render() {
   if (winnerCheck) {
     for (let i = 0; i < HorseObjectArr.length; i++) {
       let winObj = HorseObjectArr[i];
-      if (winObj.winState) {
+      if (winObj.winState && winObj.winOrder == 0) {
+      //  winOrderCount++;
         console.log("Winner is: --> " + i);
-        winnerCheck = false;
+        // winnerCheck = false;
 
         // quick Test image appendChilds
-
         let elem = document.createElement("img");
         elem.setAttribute("src", imgList[i]);
         elem.setAttribute("width", "50%");
         elem.setAttribute("height", "auto");
         document.getElementById("imgshow").appendChild(elem);
         imgShow.style.display = "block";
+        
       }
+    }
+    if(winOrderCount == 4){
+      console.log(`winorderCount ${winOrderCount}`);
+      winnerCheck = false;
     }
   }
 

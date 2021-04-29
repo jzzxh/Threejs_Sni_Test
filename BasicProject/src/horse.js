@@ -19,16 +19,18 @@ function Horse() {
   this.readState = false; // Confirm State
   this.runState = false; // start run state
   this.winState = false;
+  this.winOrder = 0;
 }
 
-Horse.prototype.loadModel = function(url) {
-  return new Promise(resolve => {
+Horse.prototype.loadModel = function (url) {
+  return new Promise((resolve) => {
     new THREE.GLTFLoader().load(url, resolve);
   });
 };
 
-Horse.prototype.GetModel = function(url, position, scale, speed) {
-  this.loadModel(url).then(result => {
+Horse.prototype.GetModel = function (url, position, scale, speed, timescale) {
+  this.loadModel(url).then((result) => {
+    this.timescale = timescale;
     this.model = result.scene;
     this.mixer = new THREE.AnimationMixer(this.model);
     this.action = this.mixer.clipAction(result.animations[0]);
@@ -45,22 +47,22 @@ Horse.prototype.GetModel = function(url, position, scale, speed) {
   });
 };
 
-Horse.prototype.updatePosition = function(position) {
+Horse.prototype.updatePosition = function (position) {
   this.position = position;
   this.model.position.set(this.position.x, this.position.y, this.position.z);
 };
 
 // SVGload Promise
-Horse.prototype.loadSVG = function(url) {
-  return new Promise(reslove => {
+Horse.prototype.loadSVG = function (url) {
+  return new Promise((reslove) => {
     new THREE.SVGLoader().load(url, reslove);
   });
 };
 
-Horse.prototype.GetSvgData = function(url, scalar) {
+Horse.prototype.GetSvgData = function (url, scalar) {
   this.scalar = scalar;
 
-  this.loadSVG(url).then(result => {
+  this.loadSVG(url).then((result) => {
     const paths = result.paths;
     for (let i = 0; i < paths.length; i++) {
       const path = paths[i];
@@ -77,20 +79,25 @@ Horse.prototype.GetSvgData = function(url, scalar) {
   });
 };
 
-Horse.prototype.SetCatMullPath = function() {
+Horse.prototype.SetCatMullPath = function () {
   this.catmullRoomPath = new THREE.CatmullRomCurve3(this.path);
 };
 
-Horse.prototype.updateRun = function() {
+Horse.prototype.updateRun = function (curveObject) {
   // Move on the path
-  let pts = this.catmullRoomPath.getPoint(this.move);
+  let pts = this.catmullRoomPath
+    .getPoint(this.move)
+    .applyMatrix4(curveObject.matrixWorld);
 
   this.updatePosition(new THREE.Vector3(pts.x, pts.y, pts.z));
 
   let up = new THREE.Vector3(1, 0, 0);
   let axis = new THREE.Vector3();
   let tangent = this.catmullRoomPath.getTangent(this.move).normalize();
-  axis.crossVectors(up, tangent).normalize();
+  axis
+    .crossVectors(up, tangent)
+    .applyMatrix4(curveObject.matrixWorld)
+    .normalize();
   // calcluate the angle between the up vector and the tangent
   let radians = Math.acos(up.dot(tangent));
 
