@@ -219,18 +219,20 @@ function render() {
     for (let i = 0; i < HorseObjectArr.length; i++) {
       let winObj = HorseObjectArr[i];
       if (winObj.winState && winObj.winOrder == 0) {
-      //  winOrderCount++;
-        console.log("Winner is: --> " + i);
+        winOrderCount++;
+        winObj.winOrder = winOrderCount;
+        console.log("Winner is: --> " + i + ' , winCount: ' + winOrderCount);
         // winnerCheck = false;
 
         // quick Test image appendChilds
         let elem = document.createElement("img");
         elem.setAttribute("src", imgList[i]);
-        elem.setAttribute("width", "50%");
+        elem.setAttribute("width", "30%");
         elem.setAttribute("height", "auto");
         document.getElementById("imgshow").appendChild(elem);
+        imgShow.style.opacity = "0.5";
         imgShow.style.display = "block";
-        
+        break;
       }
     }
     if(winOrderCount == 4){
