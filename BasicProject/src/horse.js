@@ -20,6 +20,7 @@ function Horse() {
   this.runState = false; // start run state
   this.winState = false;
   this.winOrder = 0;
+  this.userChoose = -1;
 }
 
 Horse.prototype.loadModel = function (url) {

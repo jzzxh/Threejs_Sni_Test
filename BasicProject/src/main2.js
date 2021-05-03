@@ -70,7 +70,7 @@ function init() {
     console.log("Fire.!");
   });
 
-  const GotitBut = document.querySelector(".onboarding-button");
+/*   const GotitBut = document.querySelector(".onboarding-button");
   GotitBut.addEventListener("click", function (e) {
     const onBoardContainer = document.querySelector(".background-overlay");
     const coords = { x: 0, y: 0 }; // Start at (0, 0)
@@ -86,7 +86,7 @@ function init() {
       .start();
     // onBoardContainer.style.display = "none";
     console.log("onBoard Button Pressed!!");
-  });
+  }); */
 
   // End Button
 
@@ -221,8 +221,7 @@ function render() {
       if (winObj.winState && winObj.winOrder == 0) {
         winOrderCount++;
         winObj.winOrder = winOrderCount;
-        console.log("Winner is: --> " + i + ' , winCount: ' + winOrderCount);
-        // winnerCheck = false;
+        console.log("Winner is: --> " + i + " , winCount: " + winOrderCount);
 
         // quick Test image appendChilds
         let elem = document.createElement("img");
@@ -236,7 +235,19 @@ function render() {
         break;
       }
     }
-    if(winOrderCount == 4){
+    if (winOrderCount == 4) {
+
+      // User Choosen Compare
+      for (let i = 0; i < HorseObjectArr.length; i++) {
+        let chooseObj = HorseObjectArr[i];
+        if(chooseObj.userChoose == 1 && chooseObj.winOrder == 1){ // Right Choose get Winner
+          // show some result
+        }else{
+          // show some result
+        }
+      }
+
+
       console.log(`winorderCount ${winOrderCount}`);
       winnerCheck = false;
     }

@@ -13,6 +13,8 @@
     <script src="https://threejs.org/examples/js/loaders/SVGLoader.js"></script>
     <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.min.js"></script>
+    <script defer src="https://unpkg.com/p5.collide2d"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script> -->
 
 
@@ -21,7 +23,7 @@
 
 <body>
 
-    <div class="background-overlay hideable hideable--hidden" id="onboarding-background-html">
+    <div class="background-overlay" id="onboarding-background-html">
         <div id="onboarding">
             <img src="image/racing.png" id="onboarding-cover-image" class="no-select" />
             <div id="onboarding-text-container">
@@ -30,7 +32,16 @@
         </div>
     </div>
 
-    <h1 class='pInfo'>Iter: 0</h1>
+    <div class="choosePage">
+        <img id="chooseImg" src="./image/choosePage.png" />
+    </div>
+
+    <!-- Touch Event && Display Rank in P5js -->
+    <div id="ChooseInP5"> 
+
+    </div>
+
+
     <button class='btn'>Start</button>
     <div id="imgshow"></div>
     <div id="stats"></div>
@@ -40,6 +51,7 @@
     <script src="./src/cube.js"></script>
     <script src="./src/horse.js"></script>
     <script src="./src/main2.js"></script>
+    <script src="./src/ChooseInP5.js"></script>
 </body>
 
 </html>
