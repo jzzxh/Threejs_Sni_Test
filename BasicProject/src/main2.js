@@ -230,8 +230,9 @@ function render() {
         elem.setAttribute("width", "30%");
         elem.setAttribute("height", "auto");
         document.getElementById("imgshow").appendChild(elem);
-        imgShow.style.opacity = "0.5";
+        imgShow.style.opacity = "0.75";
         imgShow.style.display = "block";
+
         break;
       }
     }
