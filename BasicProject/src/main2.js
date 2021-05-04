@@ -45,6 +45,7 @@ var RankState = false;
 // rank image
 var rankImg = ['./image/w1.png','./image/w2.png','./image/w3.png','./image/w4.png'];
 
+
 // temp data
 var imgShow;
 var imgList = [
