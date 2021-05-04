@@ -39,6 +39,9 @@ var StartState = false;
 // Visual Line Object
 var vLine;
 
+// P5JS Varible
+var RankState = false;
+
 // temp data
 var imgShow;
 var imgList = [
@@ -70,7 +73,7 @@ function init() {
     console.log("Fire.!");
   });
 
-/*   const GotitBut = document.querySelector(".onboarding-button");
+  /*   const GotitBut = document.querySelector(".onboarding-button");
   GotitBut.addEventListener("click", function (e) {
     const onBoardContainer = document.querySelector(".background-overlay");
     const coords = { x: 0, y: 0 }; // Start at (0, 0)
@@ -236,17 +239,25 @@ function render() {
       }
     }
     if (winOrderCount == 4) {
-
       // User Choosen Compare
       for (let i = 0; i < HorseObjectArr.length; i++) {
         let chooseObj = HorseObjectArr[i];
-        if(chooseObj.userChoose == 1 && chooseObj.winOrder == 1){ // Right Choose get Winner
+        if (chooseObj.userChoose == 1 && chooseObj.winOrder == 1) {
+          // Right Choose get Winner
           // show some result
-        }else{
+        } else {
           // show some result
         }
       }
 
+      // show p5js container
+      // show rank container
+      // set rankState (true)
+      const RankContainer = document.querySelector(".rankPage");
+      RankContainer.style.display = "flex";
+      const ChooseContainer = document.querySelector("#ChooseInP5");
+      ChooseContainer.style.display = "block";
+      RankState = true;
 
       console.log(`winorderCount ${winOrderCount}`);
       winnerCheck = false;
