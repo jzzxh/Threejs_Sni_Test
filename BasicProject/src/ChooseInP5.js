@@ -71,7 +71,14 @@ var ChooseSketch = function ($) {
     }
   };
 
-  $.preload = function () {};
+  $.preload = function () {
+
+    // load p5js image object to horse object
+    for (let i = 0; i < HorseObjectArr.length; i++) {
+      let horseObj = HorseObjectArr[i];
+      horseObj.rankImage = $.loadImage(rankImg[i]);
+    }
+  };
 
   $.touchStarted = function () {
     hitTestX = $.mouseX;
