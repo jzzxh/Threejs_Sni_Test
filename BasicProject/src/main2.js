@@ -40,11 +40,15 @@ var StartState = false;
 var vLine;
 
 // P5JS Varible
-var RankState = false;
+var RankState = false; /* default (false) */
 
 // rank image
-var rankImg = ['./image/w1.png','./image/w2.png','./image/w3.png','./image/w4.png'];
-
+var rankImg = [
+  "./image/w1.png",
+  "./image/w2.png",
+  "./image/w3.png",
+  "./image/w4.png",
+];
 
 // temp data
 var imgShow;
@@ -71,7 +75,7 @@ function init() {
   // Start Button Position
   const butObj = document.querySelector(".btn");
   butObj.style.left = String(container.clientWidth / 2 - 25) + "px";
-  butObj.addEventListener("click", function (e) {
+  butObj.addEventListener("click", function(e) {
     // Event listener
     StartState = true;
     console.log("Fire.!");
@@ -244,7 +248,7 @@ function render() {
     }
     if (winOrderCount == 4) {
       // User Choosen Compare
-      for (let i = 0; i < HorseObjectArr.length; i++) {
+      /*     for (let i = 0; i < HorseObjectArr.length; i++) {
         let chooseObj = HorseObjectArr[i];
         if (chooseObj.userChoose == 1 && chooseObj.winOrder == 1) {
           // Right Choose get Winner
@@ -252,16 +256,19 @@ function render() {
         } else {
           // show some result
         }
-      }
+      } */
 
       // show p5js container
       // show rank container
       // set rankState (true)
-      const RankContainer = document.querySelector(".rankPage");
-      RankContainer.style.display = "flex";
-      const ChooseContainer = document.querySelector("#ChooseInP5");
-      ChooseContainer.style.display = "block";
-      RankState = true;
+      // wait 1's show rank page
+      setTimeout(function() {
+        const RankContainer = document.querySelector(".rankPage");
+        RankContainer.style.display = "flex";
+        const ChooseContainer = document.querySelector("#ChooseInP5");
+        ChooseContainer.style.display = "block";
+        RankState = true;
+      }, 1000);
 
       console.log(`winorderCount ${winOrderCount}`);
       winnerCheck = false;

@@ -1,4 +1,4 @@
-var ChooseSketch = function ($) {
+var ChooseSketch = function($) {
   let explainTouch_Xpos;
   let explainTouch_Ypos;
   let explainTouch_W;
@@ -18,10 +18,12 @@ var ChooseSketch = function ($) {
   let hitTestX = -1;
   let hitTestY = -1;
 
-  $.setup = function () {
+  let resultImg = ["./image/Winner.png", "./image/loser.png"];
+  let reulstPageImg;
+
+  $.setup = function() {
     $.createCanvas($.windowWidth, $.windowHeight);
     $.noStroke();
-    $.background(70, 150, 0, 100);
 
     // explain page init
     explainTouch_Xpos = 0;
@@ -36,7 +38,7 @@ var ChooseSketch = function ($) {
     console.log(chooseTouch_XposArr);
   };
 
-  $.draw = function () {
+  $.draw = function() {
     $.clear();
 
     //* Visual Touch Area
@@ -65,14 +67,29 @@ var ChooseSketch = function ($) {
     }
 
     // Rank visual
-    if(RankState){
-      $.fill(0,255,0,75);
-      $.rect(50,50,100,100);
+    if (RankState) {
+      for (let i = 0; i < HorseObjectArr.length; i++) {
+        let horseObj = HorseObjectArr[i];
+        let winOrderXpos = HorseObjectArr[i].winOrder - 1;
+        $.image(
+          HorseObjectArr[i].rankImage,
+          chooseTouch_XposArr[winOrderXpos] + 10,
+          $.windowHeight / 2,
+          HorseObjectArr[i].rankImage.width * 0.4,
+          HorseObjectArr[i].rankImage.height * 0.4
+        );
+      }
+      // Wait 5's transition to win or lose page
+      setTimeout(function() {
+        ReusltTrigger();
+        RankState = false;
+        console.log("SHOW Result image");
+        $.noLoop();
+      }, 6000);
     }
   };
 
-  $.preload = function () {
-
+  $.preload = function() {
     // load p5js image object to horse object
     for (let i = 0; i < HorseObjectArr.length; i++) {
       let horseObj = HorseObjectArr[i];
@@ -80,14 +97,14 @@ var ChooseSketch = function ($) {
     }
   };
 
-  $.touchStarted = function () {
+  $.touchStarted = function() {
     hitTestX = $.mouseX;
     hitTestY = $.mouseY;
 
     // console.log("I'm touch p5: "+ hitTestX +" , "+hitTestY);
   };
 
-  $.touchEnded = function () {
+  $.touchEnded = function() {
     //* explain page
     if (
       $.collidePointRect(
@@ -102,7 +119,7 @@ var ChooseSketch = function ($) {
     ) {
       ExplainTrigger();
       // delay 0.7's set the choose state (true)
-      setTimeout(function () {
+      setTimeout(function() {
         chooseButton_State = true;
       }, 700);
       console.log("Explain Pressed");
@@ -123,7 +140,7 @@ var ChooseSketch = function ($) {
         ) &&
         chooseButton_State
       ) {
-        chooseResult = i+1;
+        chooseResult = i + 1;
         ChooseTrigger();
         // set Horse Object userChoose property
         let horseObj = HorseObjectArr[i];
@@ -170,6 +187,35 @@ var ChooseSketch = function ($) {
       .start();
   }
   //* end explain page
+
+  //* result page
+  function ReusltTrigger() {
+    for (let i = 0; i < HorseObjectArr.length; i++) {
+      let chooseObj = HorseObjectArr[i];
+      if (chooseObj.userChoose == 1 && chooseObj.winOrder == 1) {
+        // Right Choose get Winner
+        // show some result
+        reulstPageImg = resultImg[0];
+        break;
+      } else {
+        // show some result
+        reulstPageImg = resultImg[1];
+      }
+    }
+
+    const ResultContainer = document.querySelector(".resultPage");
+    ResultContainer.style.display = "flex";
+    let elem = document.createElement("img");
+    elem.setAttribute("src", reulstPageImg);
+    elem.setAttribute("width", "100%");
+    elem.setAttribute("height", "100%");
+    ResultContainer.appendChild(elem);
+
+    // const RankContainer = document.querySelector(".rankPage");
+    // RankContainer.style.display = "none";
+
+    //* end result page
+  }
 };
 
 var ChooseSketch_p5 = new p5(ChooseSketch, "ChooseInP5");
