@@ -3,7 +3,6 @@ var ChooseSketch = function($) {
   let explainTouch_Ypos;
   let explainTouch_W;
   let explainTouch_H = 150;
-  let explainButton_State = true;
 
   let chooseTouch_Xpos = -50;
   let chooseTouch_XposArr = [];
@@ -20,6 +19,7 @@ var ChooseSketch = function($) {
 
   let resultImg = ["./image/Winner.png", "./image/loser.png"];
   let reulstPageImg;
+  let resultState = true;
 
   $.setup = function() {
     $.createCanvas($.windowWidth, $.windowHeight);
@@ -27,7 +27,7 @@ var ChooseSketch = function($) {
 
     // explain page init
     explainTouch_Xpos = 0;
-    explainTouch_Ypos = $.windowHeight / 2 + 130;
+    explainTouch_Ypos = $.windowHeight / 2 + 160;
     explainTouch_W = $.windowWidth;
 
     // choose winner page init
@@ -81,9 +81,12 @@ var ChooseSketch = function($) {
       }
       // Wait 5's transition to win or lose page
       setTimeout(function() {
-        ReusltTrigger();
         RankState = false;
-        console.log("SHOW Result image");
+        if (resultState) { // excute once timer
+          ReusltTrigger();
+          console.log("SHOW Result image");
+          resultState = false;
+        }
         $.noLoop();
       }, 6000);
     }
@@ -149,6 +152,16 @@ var ChooseSketch = function($) {
         const ChooseContainer = document.querySelector("#ChooseInP5");
         ChooseContainer.style.display = "none";
         console.log("Choosen Pressed, " + chooseResult);
+        // shwo target container
+        const tartgetContainer = document.querySelector(".target");
+        tartgetContainer.style.display = "block";
+
+        // start button container show
+        const startButtonContainer = document.querySelector(".startButton");
+        startButtonContainer.style.display = "block";
+        setTimeout(function() {
+          startButtonState = true;
+        }, 2000);
         chooseButton_State = false;
       }
     }
@@ -157,7 +170,7 @@ var ChooseSketch = function($) {
 
   //* explain page
   function ExplainTrigger() {
-    const onBoardContainer = document.querySelector(".background-overlay");
+    const onBoardContainer = document.querySelector(".explainPage");
     const coords = { x: 0, y: 0 }; // Start at (0, 0)
     const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
       .to({ x: 0, y: -1000 }, 1000) // Move to (300, 200) in 1 second.

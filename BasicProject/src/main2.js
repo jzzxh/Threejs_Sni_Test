@@ -39,8 +39,12 @@ var StartState = false;
 // Visual Line Object
 var vLine;
 
+// start button state
+var startButtonState = false;
+
 // P5JS Varible
 var RankState = false; /* default (false) */
+var explainButton_State = false;
 
 // rank image
 var rankImg = [
@@ -72,12 +76,57 @@ function init() {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.set(0, 8, 30);
 
+  //  init Intro Page
+  const introContainer = document.querySelector(".introPage");
+  setTimeout(function() {
+    const coords = { x: 0, y: 0 }; // Start at (0, 0)
+    const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+      .to({ x: 0, y: -1000 }, 1000) // Move to (300, 200) in 1 second.
+      .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+      .onUpdate(() => {
+        introContainer.style.setProperty(
+          "transform",
+          `translate(${coords.x}px, ${coords.y}px)`
+        );
+      })
+      .start();
+    explainButton_State = true;
+  }, 3000);
+
   // Start Button Position
-  const butObj = document.querySelector(".btn");
+  /*   const butObj = document.querySelector(".btn");
   butObj.style.left = String(container.clientWidth / 2 - 25) + "px";
   butObj.addEventListener("click", function(e) {
     // Event listener
     StartState = true;
+    console.log("Fire.!");
+  }); */
+  // Start Button Triiger
+  const startButtonContainer = document.querySelector(".startButton");
+  startButtonContainer.addEventListener("click", function(e) {
+    // Event listener
+    if (startButtonState) {
+      // hide target container
+      const tartgetContainer = document.querySelector(".target");
+      tartgetContainer.style.display = "none";
+
+      // hide button container show
+      const startButtonContainer = document.querySelector(".startButton");
+      startButtonContainer.style.display = "none";
+
+      
+      for (let i = 0; i < HorseObjectArr.length; i++) {
+        const HorseObj = HorseObjectArr[i];
+        const tScale = {scale: 0.002};
+        const tween = new TWEEN.Tween(tScale)
+          .to({scale:0.13},2000)
+          .easing(TWEEN.Easing.Quadratic.Out) 
+          .onUpdate(() => { HorseObj.model.scale.set(tScale.scale,tScale.scale,tScale.scale);})
+          .start();
+      }
+
+      StartState = true;
+    }
     console.log("Fire.!");
   });
 
@@ -86,7 +135,8 @@ function init() {
     const onBoardContainer = document.querySelector(".background-overlay");
     const coords = { x: 0, y: 0 }; // Start at (0, 0)
     const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-      .to({ x: 0, y: -1000 }, 1000) // Move to (300, 200) in 1 second.
+      .to({ x: 0, y: -1000 }, 1000) // Move to (
+        300, 200) in 1 second.
       .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
       .onUpdate(() => {
         onBoardContainer.style.setProperty(
@@ -102,18 +152,23 @@ function init() {
   // End Button
 
   //imgShow
-  imgShow = document.querySelector("#imgshow");
+  /*   imgShow = document.querySelector("#imgshow");
   // imgShow.style.left = String(container.clientWidth / 2 - 240) + "px";
   imgShow.style.left = "0px";
   // imgShow.style.top = String(container.clientHeight / 2 - 100) + "px";
   imgShow.style.top = "50px";
-  imgShow.style.display = "none";
+  imgShow.style.display = "none"; */
 
   // controls
   controls = new THREE.OrbitControls(camera, container);
   controls.addEventListener("change", render); // use if there is no animation loop
   controls.minDistance = 5;
   controls.maxDistance = 130;
+
+  // init target position
+  const tartgetContainer = document.querySelector(".target");
+  tartgetContainer.style.left = String(container.clientWidth / 2 - 70) + "px";
+  tartgetContainer.style.top = String(container.clientHeight / 2 - 80) + "px";
 
   // init status
   statsUI = initStats();
@@ -135,7 +190,7 @@ function init() {
     HorseModel.GetModel(
       modelFile[i],
       new THREE.Vector3(0, 0, 0),
-      0.13,
+      0.00,  // default 0.13
       randArr[i],
       randtimescaleArr[i]
     );
@@ -189,6 +244,8 @@ function render() {
       // visual Path Line
       vLine = new VisCube();
       vLine.getLine(HorseObjectArr[ik].catmullRoomPath);
+
+      // set the curve line transform
       vLine.curveObject.rotation.set(0.5, 0, 0);
       // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
 
@@ -197,7 +254,7 @@ function render() {
         let VecY = 0;
         let VecZ = HorseObjectArr[ik].path[i].z;
 
-        vCube.getCube("gold", 0.1, new THREE.Vector3(VecX, VecY, VecZ));
+        // vCube.getCube("gold", 0.1, new THREE.Vector3(VecX, VecY, VecZ));
       }
 
       /* console.log(HorseObjectArr[0].path[0]); */
@@ -235,13 +292,13 @@ function render() {
         console.log("Winner is: --> " + i + " , winCount: " + winOrderCount);
 
         // quick Test image appendChilds
-        let elem = document.createElement("img");
+        /*         let elem = document.createElement("img");
         elem.setAttribute("src", imgList[i]);
         elem.setAttribute("width", "30%");
         elem.setAttribute("height", "auto");
         document.getElementById("imgshow").appendChild(elem);
         imgShow.style.opacity = "0.75";
-        imgShow.style.display = "block";
+        imgShow.style.display = "block"; */
 
         break;
       }

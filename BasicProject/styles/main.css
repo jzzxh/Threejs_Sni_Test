@@ -54,63 +54,35 @@ button {
   z-index: 1;
 }
 
-.background-overlay {
+
+.introPage {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 16;
   display: flex;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 15;
 }
 
-#onboarding {
-  margin: auto;
+.introPage #introImg {
+  width: 100%;
+  height: auto;
+}
+
+.explainPage {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   z-index: 14;
-  position: relative;
-  font-size: 14px;
-  font-family: "Open Sans", sans-serif;
-  text-align: center;
-  background: #ffffff;
-  overflow-y: auto;
-  /*  overflow: hidden; */
+  display: flex;
 }
-#onboarding #onboarding-cover-image {
+
+.explainPage #explainImg {
   width: 100%;
   height: auto;
-  margin-bottom: 0px;
-}
-#onboarding #onboarding-text-container {
-  padding: 15px 25px 40px 25px;
-}
-#onboarding #onboarding-text-container #onboarding-text {
-  overflow-wrap: break-word;
-  margin: 0 0 25px 0;
-}
-#onboarding #onboarding-text-container #onboarding-text strong {
-  font-weight: 700;
-}
-
-.onboarding-button {
-  position: relative;
-  width: 147px;
-  height: 45px;
-  background: none;
-  font-family: "Open Sans", sans-serif;
-  font-weight: 700;
-  font-size: 20px;
-  border-radius: 0;
-  border: 4px solid;
-  border-color: #00bdac;
-  text-transform: uppercase;
-  color: #00bdac;
-}
-
-.onboarding-button:focus {
-  background: none !important;
 }
 
 .choosePage {
@@ -162,3 +134,25 @@ button {
   display: none; /* js control 'flex' */
 }
 
+.target {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 13; /* index:13 */
+  display: none; /* js control 'block' */
+}
+
+.startButton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 15; 
+  display: none; /* js control 'flex' */
+}
+
+.startButton #startImg {
+  width: 100%;
+  height: auto;
+}
