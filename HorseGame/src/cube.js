@@ -9,7 +9,7 @@ function VisCube() {
   this.curveObject;
 }
 
-VisCube.prototype.getCube = function (color, size, position) {
+VisCube.prototype.getCube = function (color, size, position,_scene) {
   this.color = color;
   this.size = size;
   this.position = position;
@@ -27,7 +27,7 @@ VisCube.prototype.getCube = function (color, size, position) {
     this.mats
   );
   this.cube.position.set(this.position.x, this.position.y, this.position.z);
-  scene.add(this.cube);
+  _scene.add(this.cube);
 };
 
 VisCube.prototype.getLine = function (catmullPath) {
@@ -39,5 +39,5 @@ VisCube.prototype.getLine = function (catmullPath) {
     opacity: 0.75,
   });
   this.curveObject = new THREE.Line(geometry, material);
-  scene.add(this.curveObject);
+  _scene.add(this.curveObject);
 };

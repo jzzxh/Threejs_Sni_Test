@@ -6,6 +6,18 @@ var modelFile = [
   "model/horse_pink.glb",
   "model/horse_yellow.glb",
 ];
+var lastChange = false;
+
+var vLine;
+
+function allEqual(arr) {
+  // Checks array each slice all equal. object filter.
+  let krr = [];
+  for (let k of arr) {
+    krr.push(k.readState);
+  }
+  return new Set(krr).size == 1;
+}
 
 const imageTargetPipelineModule = () => {
   // Populates some object into an XR scene and sets the initial camera position. The scene and
@@ -25,11 +37,21 @@ const imageTargetPipelineModule = () => {
     const light = new THREE.AmbientLight(0x404040, 5); // soft white light
     scene.add(light);
 
-      //* Custom Code
+    //* Custom Code
 
-
-
-      //* End Custom Code
+    for (let i = 0; i < modelFile.length; i++) {
+      let HorseModel = new Horse();
+      HorseModel.GetModel(
+        modelFile[i],
+        new THREE.Vector3(0, 0, 0),
+        0.05,
+        scene
+      );
+      HorseModel.GetSvgData(svgFile[i], 0.3);
+      HorseObjectArr.push(HorseModel);
+    }
+    console.log(HorseObjectArr);
+    //* End Custom Code
 
     // Set the initial camera position relative to the scene we just laid out. This must be at a
     // height greater than y=0.
@@ -39,6 +61,45 @@ const imageTargetPipelineModule = () => {
   // onUpdate
   const onUpdate = () => {
     const { scene, camera, renderer } = XR.Threejs.xrScene();
+
+    if (allEqual(HorseObjectArr) != lastChange) {
+      for (let ik = 0; ik < HorseObjectArr.length; ik++) {
+        HorseObjectArr[ik].SetCatMullPath();
+        //HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
+        console.log("IK" + ik + ":" + HorseObjectArr[ik].path.length);
+        // Visual Path Cube
+        let vCube = new VisCube();
+        // visual Path Line
+        vLine = new VisCube();
+        //vLine.getLine(HorseObjectArr[ik].catmullRoomPath);
+        // console.log(vLine);
+
+        // set the curve line transform
+        // vLine.curveObject.rotation.set(0.5, 0, 0);
+        // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
+
+        for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
+          let VecX = HorseObjectArr[ik].path[i].x;
+          let VecY = 0;
+          let VecZ = HorseObjectArr[ik].path[i].z;
+          vCube.getCube(
+            "gold",
+            0.06,
+            new THREE.Vector3(VecX, VecY, VecZ),
+            scene
+          );
+        }
+        lastChange = allEqual(HorseObjectArr);
+      }
+      console.log("readState bang");
+    }
+
+    /*     if (allEqual(HorseObjectArr)) {
+      //* Loop Condition
+      for (let j = 0; j < HorseObjectArr.length; j++) {
+        HorseObjectArr[j].updateRun(vLine.curveObject);
+      }
+    } */
   };
 
   // Places content over image target

@@ -17,6 +17,7 @@ function Horse() {
   this.catmullRoomPath = [];
   this.pathScalar = 0.8;
   this.readState = false; // Confirm State
+  this.svgReadState = false;
   this.runState = false; // start run state
   this.winState = false;
   this.winOrder = 0;
@@ -30,9 +31,9 @@ Horse.prototype.loadModel = function (url) {
   });
 };
 
-Horse.prototype.GetModel = function (url, position, scale, speed, timescale) {
+Horse.prototype.GetModel = function (url, position, scale,_scene) {
   this.loadModel(url).then((result) => {
-    this.timescale = timescale;
+    // this.timescale = timescale;
     this.model = result.scene;
     this.mixer = new THREE.AnimationMixer(this.model);
     this.action = this.mixer.clipAction(result.animations[0]);
@@ -41,11 +42,11 @@ Horse.prototype.GetModel = function (url, position, scale, speed, timescale) {
     this.scale = scale;
     this.model.scale.set(this.scale, this.scale, this.scale);
     this.position = position;
-    this.speed = speed;
+    // this.speed = speed;
     this.model.position.set(this.position.x, this.position.y, this.position.z);
-    scene.add(this.model);
+    _scene.add(this.model);
 
-    this.readState = true; // confirm load fin
+    this.readState = true; // confirm model load fin
   });
 };
 
@@ -78,11 +79,13 @@ Horse.prototype.GetSvgData = function (url, scalar) {
         }
       }
     }
+    this.svgReadState = true;
   });
 };
 
 Horse.prototype.SetCatMullPath = function () {
   this.catmullRoomPath = new THREE.CatmullRomCurve3(this.path);
+  console.log(this.path.length);
 };
 
 Horse.prototype.updateRun = function (curveObject) {
