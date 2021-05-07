@@ -1,7 +1,14 @@
 #camerafeed {
-  z-index: -2 !important;
+  z-index: 0 !important;
   position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none; 
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  }
+  body{
+    touch-action: pan-x pan-y; /* prevent zoom gesture */
+    margin: 0;
+    overflow: hidden;
+    background-color: black;
   }

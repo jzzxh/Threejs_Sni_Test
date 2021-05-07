@@ -30,7 +30,7 @@ VisCube.prototype.getCube = function (color, size, position,_scene) {
   _scene.add(this.cube);
 };
 
-VisCube.prototype.getLine = function (catmullPath) {
+VisCube.prototype.getLine = function (catmullPath,_scene) {
   let catmullPTS = catmullPath.getPoints(100);
   let geometry = new THREE.BufferGeometry().setFromPoints(catmullPTS);
   let material = new THREE.LineBasicMaterial({
