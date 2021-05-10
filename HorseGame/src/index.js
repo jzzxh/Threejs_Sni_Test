@@ -10,11 +10,23 @@ var modelFile = [
 ];
 var lastChange = false;
 
+// device estimate
+var deviceEstValue;
+var deviceEstSubstractVal = 0;
+
+// visual svg path line
 var vLine;
 
 // set Horse updateRun State
 var updateRunCount = 0;
 var updateRunState = false;
+
+// image target state
+var imageTarget_State = false;
+
+var global_Scene;
+
+var Tcube;
 
 function allEqual(arr) {
   // Checks array each slice all equal. object filter.
@@ -30,6 +42,14 @@ const imageTargetPipelineModule = () => {
   // camera come from xr3js, and are only available in the camera loop lifecycle onStart() or later.
   const initXrScene = ({ scene, camera }) => {
     console.log("initXrScene");
+
+    // deviceEstimate
+    deviceEstValue = window.XR8.XrDevice.deviceEstimate().os;
+    if (deviceEstValue === "Android") {
+      deviceEstSubstractVal = 0;
+    } else {
+      deviceEstSubstractVal = 2;
+    }
 
     // init clock instance
     clock = new THREE.Clock();
@@ -49,27 +69,32 @@ const imageTargetPipelineModule = () => {
     //* Custom Code
 
     // Add a purple cube that casts a shadow.
-    /*     const material = new THREE.MeshBasicMaterial();
+       const material = new THREE.MeshBasicMaterial();
     material.side = THREE.DoubleSide;
     material.map = new THREE.TextureLoader().load(
       "https://cdn.8thwall.com/web/assets/cube-texture.png"
     );
     material.color = new THREE.Color(0xad50ff);
-    const cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-    cube.position.set(0, 0.5, 0);
-    scene.add(cube); */
+    // const cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
+    Tcube = new THREE.Mesh(new THREE.BoxGeometry(2, 1, 2), material);
+    Tcube.position.set(0, 0, 0);
+    scene.add(Tcube); 
 
     for (let i = 0; i < modelFile.length; i++) {
       let HorseModel = new Horse();
       HorseModel.GetModel(
         modelFile[i],
-        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, 0, -5),
         0.03,
         scene
       );
       HorseModel.GetSvgData(svgFile[i], 0.3);
       HorseObjectArr.push(HorseModel);
     }
+
+    // new vLine instance
+    vLine = new VisCube();
+
     console.log(HorseObjectArr);
     //* End Custom Code
 
@@ -80,9 +105,11 @@ const imageTargetPipelineModule = () => {
 
   // onUpdate
   const onUpdate = () => {
-    const { scene, camera, renderer } = XR.Threejs.xrScene();
+    const { scene, camera, renderer } = XR8.Threejs.xrScene();
 
-    if (allEqual(HorseObjectArr) != lastChange) {
+    global_Scene = scene;
+
+    /*     if (allEqual(HorseObjectArr) != lastChange) {
       for (let ik = 0; ik < HorseObjectArr.length; ik++) {
         if (HorseObjectArr[ik].path.length > 0) {
           // confirm all path are settle
@@ -92,7 +119,7 @@ const imageTargetPipelineModule = () => {
           // Visual Path Cube
           let vCube = new VisCube();
           // visual Path Line
-          vLine = new VisCube();
+
           vLine.getLine(HorseObjectArr[ik].catmullRoomPath, scene);
 
           // set the curve line transform
@@ -116,13 +143,16 @@ const imageTargetPipelineModule = () => {
       lastChange = allEqual(HorseObjectArr);
 
       console.log("readState bang");
-    }
+    } */
 
     // console.log(updateRunCount);
 
-    if (allEqual(HorseObjectArr) && updateRunCount == 3) {
-      // confirm all path are settle
-      //* Loop Condition
+    if (
+      allEqual(HorseObjectArr) &&
+      /* (updateRunCount == 3 - deviceEstSubstractVal) && */ imageTarget_State
+    ) {
+      // confirm all path are settle, set horse init position
+      //* once excution
       for (let j = 0; j < HorseObjectArr.length; j++) {
         HorseObjectArr[j].updateRun(vLine.curveObject);
       }
@@ -131,7 +161,12 @@ const imageTargetPipelineModule = () => {
       // console.log("update RUN.....");
     }
 
-    if (allEqual(HorseObjectArr) && updateRunCount == 4) {
+    if (
+      allEqual(HorseObjectArr) &&
+     /*  updateRunCount == 4 - deviceEstSubstractVal && */
+      imageTarget_State
+    ) {
+      //* once excution
       for (let i = 0; i < HorseObjectArr.length; i++) {
         HorseObjectArr[i].runState = true;
         HorseObjectArr[i].action.play();
@@ -140,14 +175,15 @@ const imageTargetPipelineModule = () => {
       updateRunCount++;
     }
 
-    if (allEqual(HorseObjectArr) && updateRunCount >= 5) {
+    if (
+      allEqual(HorseObjectArr) &&
+     /*  updateRunCount >= 5 - deviceEstSubstractVal && */
+      imageTarget_State
+    ) {
       //* Loop Condition
       for (let j = 0; j < HorseObjectArr.length; j++) {
         HorseObjectArr[j].updateRun(vLine.curveObject);
       }
-
-
-      
     }
 
     // GLB Animation
@@ -160,7 +196,56 @@ const imageTargetPipelineModule = () => {
 
   // Places content over image target
   const showTarget = ({ detail }) => {
-    if (detail.name === "flo0128") {
+    if (detail.name === "book") {
+      // console.log("Scan book success!!");
+      // vLine.curveObject.rotation.copy(detail.rotation);
+      // console.log(detail.rotation);
+      // vLine.curveObject.position.copy(detail.position);
+      // vLine.setPosition(detail.position);
+      // vLine.curveObject.rotation.set(detail.rotation.x, 0, 0);
+      // vLine.curveObject.rotation.set(detail.position.x, 0, 0);
+      // console.log("Scannign Book");
+
+      Tcube.position.copy(detail.position);
+       Tcube.rotation.copy(detail.rotation);
+
+/*       if (allEqual(HorseObjectArr) != lastChange) {
+        for (let ik = 0; ik < HorseObjectArr.length; ik++) {
+          if (HorseObjectArr[ik].path.length > 0) {
+            // confirm all path are settle
+            HorseObjectArr[ik].SetCatMullPath();
+            //HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
+            console.log("IK" + ik + ":" + HorseObjectArr[ik].path.length);
+            // Visual Path Cube
+            let vCube = new VisCube();
+            // visual Path Line
+
+            vLine.getLine(HorseObjectArr[ik].catmullRoomPath, global_Scene);
+
+            // set the curve line transform
+            vLine.setPosition(detail.position);
+            // vLine.curveObject.rotation.set(0.5, 0, 0);
+            // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
+
+            for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
+              let VecX = HorseObjectArr[ik].path[i].x;
+              let VecY = 0;
+              let VecZ = HorseObjectArr[ik].path[i].z;
+              vCube.getCube(
+                "gold",
+                0.06,
+                new THREE.Vector3(VecX, VecY, VecZ),
+                global_Scene,
+                detail.position
+              );
+            }
+          }
+        }
+        updateRunCount++;
+        lastChange = allEqual(HorseObjectArr);
+        imageTarget_State = true;
+        console.log("readState bang");
+      } */
     }
   };
 
@@ -182,13 +267,13 @@ const imageTargetPipelineModule = () => {
       facing: camera.quaternion,
     });
     // prevent scroll/pinch gestures on canvas
-    canvas.addEventListener("touchmove", event => {
+    canvas.addEventListener("touchmove", (event) => {
       event.preventDefault();
     });
     // Recenter content when the canvas is tapped.
     canvas.addEventListener(
       "touchstart",
-      e => {
+      (e) => {
         e.touches.length === 1 && XR8.XrController.recenter();
       },
       true
@@ -229,10 +314,10 @@ const onxrloaded = () => {
   // If your app only interacts with image targets and not the world, disabling world tracking can
   // improve speed.
   XR8.xrController().configure({
-    disableWorldTracking: false,
+    disableWorldTracking: true,
     enableWorldPoints: false,
     // imageTargets: ["video-target"],
-    imageTargets: ["flo0128"], // add or change name from 8thwall cms
+    imageTargets: ["book"], // add or change name from 8thwall cms
   });
   XR8.addCameraPipelineModules([
     // Add camera pipeline modules.

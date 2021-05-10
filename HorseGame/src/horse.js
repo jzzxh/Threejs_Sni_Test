@@ -15,7 +15,7 @@ function Horse() {
   this.scale;
   this.path = [];
   this.catmullRoomPath = [];
-  this.pathScalar = 0.8;
+  this.pathScalar = 0.6;
   this.readState = false; // Confirm State
   this.svgReadState = false;
   this.runState = false; // start run state
@@ -85,7 +85,7 @@ Horse.prototype.GetSvgData = function (url, scalar) {
 
 Horse.prototype.SetCatMullPath = function () {
   this.catmullRoomPath = new THREE.CatmullRomCurve3(this.path);
-  console.log(this.path.length);
+
 };
 
 Horse.prototype.updateRun = function (curveObject) {

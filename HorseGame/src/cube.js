@@ -9,7 +9,7 @@ function VisCube() {
   this.curveObject;
 }
 
-VisCube.prototype.getCube = function (color, size, position,_scene) {
+VisCube.prototype.getCube = function (color, size, position,_scene,pos) {
   this.color = color;
   this.size = size;
   this.position = position;
@@ -40,4 +40,10 @@ VisCube.prototype.getLine = function (catmullPath,_scene) {
   });
   this.curveObject = new THREE.Line(geometry, material);
   _scene.add(this.curveObject);
+};
+
+VisCube.prototype.setPosition = function(pos){
+  this.curveObject.position.set(pos.x,0,pos.z);
+  console.log(pos);
+
 };
