@@ -23,6 +23,7 @@ var updateRunState = false;
 
 // image target state
 var imageTarget_State = false;
+var imageTargetLev2_State = false;
 
 var global_Scene;
 
@@ -69,7 +70,7 @@ const imageTargetPipelineModule = () => {
     //* Custom Code
 
     // Add a purple cube that casts a shadow.
-       const material = new THREE.MeshBasicMaterial();
+/*     const material = new THREE.MeshBasicMaterial();
     material.side = THREE.DoubleSide;
     material.map = new THREE.TextureLoader().load(
       "https://cdn.8thwall.com/web/assets/cube-texture.png"
@@ -78,7 +79,7 @@ const imageTargetPipelineModule = () => {
     // const cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
     Tcube = new THREE.Mesh(new THREE.BoxGeometry(2, 1, 2), material);
     Tcube.position.set(0, 0, 0);
-    scene.add(Tcube); 
+    scene.add(Tcube); */
 
     for (let i = 0; i < modelFile.length; i++) {
       let HorseModel = new Horse();
@@ -91,6 +92,8 @@ const imageTargetPipelineModule = () => {
       HorseModel.GetSvgData(svgFile[i], 0.3);
       HorseObjectArr.push(HorseModel);
     }
+
+
 
     // new vLine instance
     vLine = new VisCube();
@@ -157,14 +160,16 @@ const imageTargetPipelineModule = () => {
         HorseObjectArr[j].updateRun(vLine.curveObject);
       }
       updateRunCount++; // excute once
-
-      // console.log("update RUN.....");
+      imageTargetLev2_State = true;
+      imageTarget_State = false;
+      console.log("update RUN.....");
     }
-
+    console.log(updateRunCount);
     if (
       allEqual(HorseObjectArr) &&
-     /*  updateRunCount == 4 - deviceEstSubstractVal && */
-      imageTarget_State
+      /*  updateRunCount == 4 - deviceEstSubstractVal && */
+      updateRunCount == 2 &&
+      imageTargetLev2_State
     ) {
       //* once excution
       for (let i = 0; i < HorseObjectArr.length; i++) {
@@ -177,8 +182,9 @@ const imageTargetPipelineModule = () => {
 
     if (
       allEqual(HorseObjectArr) &&
-     /*  updateRunCount >= 5 - deviceEstSubstractVal && */
-      imageTarget_State
+      /*  updateRunCount >= 5 - deviceEstSubstractVal && */
+      updateRunCount == 3 &&
+      imageTargetLev2_State
     ) {
       //* Loop Condition
       for (let j = 0; j < HorseObjectArr.length; j++) {
@@ -204,15 +210,24 @@ const imageTargetPipelineModule = () => {
       // vLine.setPosition(detail.position);
       // vLine.curveObject.rotation.set(detail.rotation.x, 0, 0);
       // vLine.curveObject.rotation.set(detail.position.x, 0, 0);
-      // console.log("Scannign Book");
-
+      // console.log(detail.rotation);
+/* 
       Tcube.position.copy(detail.position);
-       Tcube.rotation.copy(detail.rotation);
+      Tcube.quaternion.copy(detail.rotation); */
 
-/*       if (allEqual(HorseObjectArr) != lastChange) {
+      if (allEqual(HorseObjectArr) != lastChange) {
+
+        // recenter AR scene
+        XR8.XrController.recenter();
+
         for (let ik = 0; ik < HorseObjectArr.length; ik++) {
           if (HorseObjectArr[ik].path.length > 0) {
             // confirm all path are settle
+
+            // show horse object
+            let horseObj = HorseObjectArr[ik];
+            horseObj.model.visible = true;
+
             HorseObjectArr[ik].SetCatMullPath();
             //HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
             console.log("IK" + ik + ":" + HorseObjectArr[ik].path.length);
@@ -222,9 +237,14 @@ const imageTargetPipelineModule = () => {
 
             vLine.getLine(HorseObjectArr[ik].catmullRoomPath, global_Scene);
 
+            // vLine.curveObject.position.set(0,0,0);
+
             // set the curve line transform
-            vLine.setPosition(detail.position);
-            // vLine.curveObject.rotation.set(0.5, 0, 0);
+            // vLine.setPosition(detail.position);
+            // vLine.curveObject.quaternion.copy(new THREE.Vector4(detail.rotation.x,detail.rotation.y,detail.rotation.z*1.2,detail.rotation.w*-1));
+            // vLine.curveObject.quaternion.copy(detail.rotation);
+            // vLine.curveObject.rotation.set(detail.rotation.x,0,0);
+            // vLine.curveObject.scale.set(detail.scale,detail.scale,detail.scale);
             // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
 
             for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
@@ -235,17 +255,17 @@ const imageTargetPipelineModule = () => {
                 "gold",
                 0.06,
                 new THREE.Vector3(VecX, VecY, VecZ),
-                global_Scene,
-                detail.position
+                global_Scene
               );
             }
           }
         }
         updateRunCount++;
-        lastChange = allEqual(HorseObjectArr);
         imageTarget_State = true;
+        lastChange = allEqual(HorseObjectArr);
+
         console.log("readState bang");
-      } */
+      }
     }
   };
 
@@ -314,7 +334,7 @@ const onxrloaded = () => {
   // If your app only interacts with image targets and not the world, disabling world tracking can
   // improve speed.
   XR8.xrController().configure({
-    disableWorldTracking: true,
+    disableWorldTracking: false,
     enableWorldPoints: false,
     // imageTargets: ["video-target"],
     imageTargets: ["book"], // add or change name from 8thwall cms

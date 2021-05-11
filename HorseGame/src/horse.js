@@ -31,7 +31,7 @@ Horse.prototype.loadModel = function (url) {
   });
 };
 
-Horse.prototype.GetModel = function (url, position, scale,_scene) {
+Horse.prototype.GetModel = function (url, position, scale, _scene) {
   this.loadModel(url).then((result) => {
     // this.timescale = timescale;
     this.model = result.scene;
@@ -44,6 +44,7 @@ Horse.prototype.GetModel = function (url, position, scale,_scene) {
     this.position = position;
     // this.speed = speed;
     this.model.position.set(this.position.x, this.position.y, this.position.z);
+    this.model.visible = false;
     _scene.add(this.model);
 
     this.readState = true; // confirm model load fin
@@ -85,7 +86,6 @@ Horse.prototype.GetSvgData = function (url, scalar) {
 
 Horse.prototype.SetCatMullPath = function () {
   this.catmullRoomPath = new THREE.CatmullRomCurve3(this.path);
-
 };
 
 Horse.prototype.updateRun = function (curveObject) {
