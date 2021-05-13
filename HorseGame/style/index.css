@@ -8,7 +8,8 @@
   }
   body{
     touch-action: pan-x pan-y; /* prevent zoom gesture */
-    margin: 0;
+    margin: -1px 0px 0px 0px !important;
+    padding: 0;
     overflow: hidden;
     background-color: black;
   }

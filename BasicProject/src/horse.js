@@ -22,6 +22,7 @@ function Horse() {
   this.winOrder = 0;
   this.userChoose = -1;
   this.rankImage;
+  this.rankHorseImage;
 }
 
 Horse.prototype.loadModel = function (url) {

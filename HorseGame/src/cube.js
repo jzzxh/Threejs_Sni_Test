@@ -43,5 +43,5 @@ VisCube.prototype.getLine = function (catmullPath,_scene) {
 };
 
 VisCube.prototype.setPosition = function(pos){
-  this.curveObject.position.copy(pos);
+  this.curveObject.position.set(pos.x,pos.y,pos.z);
 };

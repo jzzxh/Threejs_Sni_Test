@@ -152,7 +152,7 @@ function init() {
   ///////////////////////
   clock = new THREE.Clock();
 
-  loadModel("horse_orange.glb").then((result) => {
+  loadModel("horse_orange.glb").then(result => {
     model_2 = result.scene;
     mixer2 = new THREE.AnimationMixer(model_2);
     action_2 = mixer2.clipAction(result.animations[0]);
@@ -195,7 +195,7 @@ function init() {
 }
 
 function loadModel(url) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     new THREE.GLTFLoader().load(url, resolve);
   });
 }
@@ -207,7 +207,7 @@ function loadGLB(path, size) {
     // resource URL
     path,
     // called when the resource is loaded
-    function (gltf) {
+    function(gltf) {
       model_1 = gltf.scene;
       model_1.scale.set(size, size, size); // scale here 0.2
 
@@ -224,7 +224,7 @@ function loadGLB(path, size) {
 function loadSVG(url) {
   const loader = new THREE.SVGLoader();
 
-  loader.load(url, function (data) {
+  loader.load(url, function(data) {
     const paths = data.paths;
 
     for (let i = 0; i < paths.length; i++) {
@@ -257,6 +257,7 @@ function lineDraw() {
     for (let i = 0; i < linePoints.length; i++) {
       let lineObj = linePoints[i];
       let x = lineObj.x * pathScalar[s];
+      // let y = lineObj.y * pathScalar[s] * -1;
       let y = 0;
       let z = lineObj.y * pathScalar[s];
 
@@ -294,8 +295,14 @@ function render() {
         const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
         // Create the final object to add to the scene
         curveObject = new THREE.Line(geometry, material);
-        curveObject.rotation.set(-0.3, 0, -0.2);
-        curveObject.position.set(10,0,0);
+
+        curveObject.rotation.set(1.5, 0, 0);
+        curveObject.position.set(0, 0, -5);
+
+        curveObject.updateMatrixWorld(true);
+
+        /*         curveObject.matrixAutoUpdate = false;
+        curveObject.updateMatrixWorld(true); */
 
         scene.add(curveObject);
 
@@ -309,8 +316,6 @@ function render() {
       }
     }
 
-
-
     lastChange = pLinePoints.length;
   }
 
@@ -318,6 +323,7 @@ function render() {
 
   if (pLinePoints.length > 0) {
     // for (let s = 0; s < tsObj.length; s++) {
+
     let pts = pathCatmullRoom[1]
       .getPoint(tsObj[1].moveT)
       .applyMatrix4(curveObject.matrixWorld);
@@ -330,7 +336,8 @@ function render() {
     let tangent = pathCatmullRoom[1].getTangent(tsObj[1].moveT).normalize();
 
     // calculate the axis to rotate around
-    axis.crossVectors(up, tangent).applyMatrix4(curveObject.matrixWorld).normalize();
+    //axis.crossVectors(up, tangent).applyMatrix4(curveObject.matrixWorld).normalize();
+    axis.crossVectors(up, tangent).normalize();
 
     // calcluate the angle between the up vector and the tangent
     let radians = Math.acos(up.dot(tangent));
@@ -380,7 +387,6 @@ function render() {
 
 function animate() {
   requestAnimationFrame(animate);
-
   render();
 }
 

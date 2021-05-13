@@ -27,7 +27,9 @@ var imageTargetLev2_State = false;
 
 var global_Scene;
 
-var Tcube;
+const raycaster = new THREE.Raycaster()
+const tapPosition = new THREE.Vector2()
+var surface; // Transparent surface for raycasting for object placement.
 
 function allEqual(arr) {
   // Checks array each slice all equal. object filter.
@@ -38,10 +40,63 @@ function allEqual(arr) {
   return new Set(krr).size == 1;
 }
 
+function createHorseScene(pointX,pointZ) {
+  if (allEqual(HorseObjectArr) != lastChange) {
+    // recenter AR scene
+    // XR8.XrController.recenter();
+
+    for (let ik = 0; ik < HorseObjectArr.length; ik++) {
+      if (HorseObjectArr[ik].path.length > 0) {
+        // confirm all path are settle
+        // show horse object
+        let horseObj = HorseObjectArr[ik];
+        horseObj.model.visible = true;
+
+        HorseObjectArr[ik].SetCatMullPath();
+        //HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
+        console.log("IK" + ik + ":" + HorseObjectArr[ik].path.length);
+
+        // Visual Path Cube
+        let vCube = new VisCube();
+        // visual Path Line
+        vLine.getLine(HorseObjectArr[ik].catmullRoomPath, global_Scene);
+
+        //vLine.curveObject.position.set(0,0,0);
+
+        // set the curve line transform
+        vLine.setPosition(new THREE.Vector3(pointX,0,pointZ));
+        // vLine.curveObject.quaternion.copy(new THREE.Vector4(detail.rotation.x,detail.rotation.y,detail.rotation.z*1.2,detail.rotation.w*-1));
+
+        // vLine.curveObject.quaternion.copy(detail.rotation);
+        // vLine.curveObject.rotation.set(1.5,0,0);
+        // vLine.curveObject.scale.set(detail.scale,detail.scale,detail.scale);
+        // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
+
+        for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
+          let VecX = HorseObjectArr[ik].path[i].x;
+          let VecY = 0;
+          let VecZ = HorseObjectArr[ik].path[i].z;
+          vCube.getCube(
+            "gold",
+            0.06,
+            new THREE.Vector3(VecX, VecY, VecZ),
+            global_Scene
+          );
+        }
+      }
+    }
+    updateRunCount++;
+    imageTarget_State = true;
+    lastChange = allEqual(HorseObjectArr);
+
+    console.log("readState bang");
+  }
+}
+
 const imageTargetPipelineModule = () => {
   // Populates some object into an XR scene and sets the initial camera position. The scene and
   // camera come from xr3js, and are only available in the camera loop lifecycle onStart() or later.
-  const initXrScene = ({ scene, camera }) => {
+  const initXrScene = ({ scene, camera, renderer }) => {
     console.log("initXrScene");
 
     // deviceEstimate
@@ -52,48 +107,51 @@ const imageTargetPipelineModule = () => {
       deviceEstSubstractVal = 2;
     }
 
+    // pass xr8 scene to global
+
+    global_Scene = scene;
+
     // init clock instance
     clock = new THREE.Clock();
 
     // Light Setup
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-    directionalLight.position.set(10, 10, 10).normalize();
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 3, 100);
+
+    // directionalLight.position.set(10, 10, 10).normalize();
+    directionalLight.position.set(1, 4.3, 2.5);
     scene.add(directionalLight);
 
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 2);
+    /*    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 2,100);
     directionalLight2.position.set(10, 10, -10).normalize();
-    scene.add(directionalLight2);
+    scene.add(directionalLight2); */
 
     const light = new THREE.AmbientLight(0x404040, 5); // soft white light
     scene.add(light);
 
-    //* Custom Code
-
-    // Add a purple cube that casts a shadow.
-/*     const material = new THREE.MeshBasicMaterial();
-    material.side = THREE.DoubleSide;
-    material.map = new THREE.TextureLoader().load(
-      "https://cdn.8thwall.com/web/assets/cube-texture.png"
+    surface = new THREE.Mesh(
+      new THREE.PlaneGeometry(100, 100, 1, 1),
+      new THREE.ShadowMaterial({
+        opacity: 0.8,
+      })
     );
-    material.color = new THREE.Color(0xad50ff);
-    // const cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-    Tcube = new THREE.Mesh(new THREE.BoxGeometry(2, 1, 2), material);
-    Tcube.position.set(0, 0, 0);
-    scene.add(Tcube); */
+    surface.rotateX(-Math.PI / 2);
+    surface.position.set(0, 0, 0);
+    surface.receiveShadow = true;
+    scene.add(surface);
+
+    //* Custom Code
 
     for (let i = 0; i < modelFile.length; i++) {
       let HorseModel = new Horse();
       HorseModel.GetModel(
         modelFile[i],
         new THREE.Vector3(0, 0, -5),
-        0.03,
+        0.06,
         scene
       );
-      HorseModel.GetSvgData(svgFile[i], 0.3);
+      HorseModel.GetSvgData(svgFile[i], 0.4);
       HorseObjectArr.push(HorseModel);
     }
-
-
 
     // new vLine instance
     vLine = new VisCube();
@@ -110,46 +168,6 @@ const imageTargetPipelineModule = () => {
   const onUpdate = () => {
     const { scene, camera, renderer } = XR8.Threejs.xrScene();
 
-    global_Scene = scene;
-
-    /*     if (allEqual(HorseObjectArr) != lastChange) {
-      for (let ik = 0; ik < HorseObjectArr.length; ik++) {
-        if (HorseObjectArr[ik].path.length > 0) {
-          // confirm all path are settle
-          HorseObjectArr[ik].SetCatMullPath();
-          //HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
-          console.log("IK" + ik + ":" + HorseObjectArr[ik].path.length);
-          // Visual Path Cube
-          let vCube = new VisCube();
-          // visual Path Line
-
-          vLine.getLine(HorseObjectArr[ik].catmullRoomPath, scene);
-
-          // set the curve line transform
-          // vLine.curveObject.rotation.set(0.5, 0, 0);
-          // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
-
-          for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
-            let VecX = HorseObjectArr[ik].path[i].x;
-            let VecY = 0;
-            let VecZ = HorseObjectArr[ik].path[i].z;
-            vCube.getCube(
-              "gold",
-              0.06,
-              new THREE.Vector3(VecX, VecY, VecZ),
-              scene
-            );
-          }
-        }
-      }
-      updateRunCount++;
-      lastChange = allEqual(HorseObjectArr);
-
-      console.log("readState bang");
-    } */
-
-    // console.log(updateRunCount);
-
     if (
       allEqual(HorseObjectArr) &&
       /* (updateRunCount == 3 - deviceEstSubstractVal) && */ imageTarget_State
@@ -164,14 +182,14 @@ const imageTargetPipelineModule = () => {
       imageTarget_State = false;
       console.log("update RUN.....");
     }
-    console.log(updateRunCount);
+
     if (
       allEqual(HorseObjectArr) &&
       /*  updateRunCount == 4 - deviceEstSubstractVal && */
       updateRunCount == 2 &&
       imageTargetLev2_State
     ) {
-      //* once excution
+      //* once excution Start Run Trigger
       for (let i = 0; i < HorseObjectArr.length; i++) {
         HorseObjectArr[i].runState = true;
         HorseObjectArr[i].action.play();
@@ -186,7 +204,7 @@ const imageTargetPipelineModule = () => {
       updateRunCount == 3 &&
       imageTargetLev2_State
     ) {
-      //* Loop Condition
+      //* Loop Condition updateRun
       for (let j = 0; j < HorseObjectArr.length; j++) {
         HorseObjectArr[j].updateRun(vLine.curveObject);
       }
@@ -202,84 +220,53 @@ const imageTargetPipelineModule = () => {
 
   // Places content over image target
   const showTarget = ({ detail }) => {
-    if (detail.name === "book") {
+    if (detail.name === "gift") {
       // console.log("Scan book success!!");
-      // vLine.curveObject.rotation.copy(detail.rotation);
-      // console.log(detail.rotation);
-      // vLine.curveObject.position.copy(detail.position);
-      // vLine.setPosition(detail.position);
-      // vLine.curveObject.rotation.set(detail.rotation.x, 0, 0);
-      // vLine.curveObject.rotation.set(detail.position.x, 0, 0);
-      // console.log(detail.rotation);
-/* 
-      Tcube.position.copy(detail.position);
-      Tcube.quaternion.copy(detail.rotation); */
-
-      if (allEqual(HorseObjectArr) != lastChange) {
-
-        // recenter AR scene
-        XR8.XrController.recenter();
-
-        for (let ik = 0; ik < HorseObjectArr.length; ik++) {
-          if (HorseObjectArr[ik].path.length > 0) {
-            // confirm all path are settle
-
-            // show horse object
-            let horseObj = HorseObjectArr[ik];
-            horseObj.model.visible = true;
-
-            HorseObjectArr[ik].SetCatMullPath();
-            //HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
-            console.log("IK" + ik + ":" + HorseObjectArr[ik].path.length);
-            // Visual Path Cube
-            let vCube = new VisCube();
-            // visual Path Line
-
-            vLine.getLine(HorseObjectArr[ik].catmullRoomPath, global_Scene);
-
-            // vLine.curveObject.position.set(0,0,0);
-
-            // set the curve line transform
-            // vLine.setPosition(detail.position);
-            // vLine.curveObject.quaternion.copy(new THREE.Vector4(detail.rotation.x,detail.rotation.y,detail.rotation.z*1.2,detail.rotation.w*-1));
-            // vLine.curveObject.quaternion.copy(detail.rotation);
-            // vLine.curveObject.rotation.set(detail.rotation.x,0,0);
-            // vLine.curveObject.scale.set(detail.scale,detail.scale,detail.scale);
-            // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
-
-            for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
-              let VecX = HorseObjectArr[ik].path[i].x;
-              let VecY = 0;
-              let VecZ = HorseObjectArr[ik].path[i].z;
-              vCube.getCube(
-                "gold",
-                0.06,
-                new THREE.Vector3(VecX, VecY, VecZ),
-                global_Scene
-              );
-            }
-          }
-        }
-        updateRunCount++;
-        imageTarget_State = true;
-        lastChange = allEqual(HorseObjectArr);
-
-        console.log("readState bang");
-      }
     }
   };
 
   // Hides the image frame when the target is no longer detected.
   const hideTarget = ({ detail }) => {};
 
+  // create slam horse scene by touch position
+  const placeObject = (pointX, pointZ) => {
+    createHorseScene(pointX,pointZ);
+    console.log(`TouchX, ${pointX}, TouchZ, ${pointZ}`);
+  };
+  const placeObjectTouchHandler = e => {
+    // Call XrController.recenter() when the canvas is tapped with two fingers. This resets the
+    // AR camera to the position specified by XrController.updateCameraProjectionMatrix() above.
+    if (e.touches.length === 2) {
+      XR8.XrController.recenter();
+    }
+    if (e.touches.length > 2) {
+      return;
+    }
+    // If the canvas is tapped with one finger and hits the "surface", spawn an object.
+    const { scene, camera } = XR8.Threejs.xrScene();
+    // calculate tap position in normalized device coordinates (-1 to +1) for both components.
+    tapPosition.x = e.touches[0].clientX / window.innerWidth * 2 - 1;
+    tapPosition.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+    // Update the picking ray with the camera and tap position.
+    raycaster.setFromCamera(tapPosition, camera);
+    // Raycast against the "surface" object.
+    const intersects = raycaster.intersectObject(surface);
+    if (intersects.length === 1 && intersects[0].object === surface) {
+      placeObject(intersects[0].point.x, intersects[0].point.z);
+    }
+  };
+
   // Grab a handle to the threejs scene and set the camera position on pipeline startup.
-  const onStart = ({ canvas }) => {
-    const { scene, camera } = XR8.Threejs.xrScene(); // Get the 3js scene from XR
+  const onStart = ({ canvas, canvasWidth, canvasHeight }) => {
+    const { scene, camera, renderer } = XR8.Threejs.xrScene(); // Get the 3js scene from XR
 
     initXrScene({
       scene,
       camera,
+      renderer,
     }); // Add content to the scene and set starting camera position.
+
+    canvas.addEventListener("touchstart", placeObjectTouchHandler, true); // Add touch listener.
 
     // Sync the xr controller's 6DoF position and camera paremeters with our scene.
     XR8.XrController.updateCameraProjectionMatrix({
@@ -287,17 +274,9 @@ const imageTargetPipelineModule = () => {
       facing: camera.quaternion,
     });
     // prevent scroll/pinch gestures on canvas
-    canvas.addEventListener("touchmove", (event) => {
+    canvas.addEventListener("touchmove", event => {
       event.preventDefault();
     });
-    // Recenter content when the canvas is tapped.
-    canvas.addEventListener(
-      "touchstart",
-      (e) => {
-        e.touches.length === 1 && XR8.XrController.recenter();
-      },
-      true
-    );
   };
 
   return {
@@ -336,8 +315,7 @@ const onxrloaded = () => {
   XR8.xrController().configure({
     disableWorldTracking: false,
     enableWorldPoints: false,
-    // imageTargets: ["video-target"],
-    imageTargets: ["book"], // add or change name from 8thwall cms
+    imageTargets: ["book", "gift"], // add or change name from 8thwall cms
   });
   XR8.addCameraPipelineModules([
     // Add camera pipeline modules.

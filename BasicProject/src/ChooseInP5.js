@@ -17,7 +17,7 @@ var ChooseSketch = function($) {
   let hitTestX = -1;
   let hitTestY = -1;
 
-  let resultImg = ["./image/Winner.png", "./image/loser.png"];
+  let resultImg = ["./image/winner.jpg", "./image/loser.jpg"];
   let reulstPageImg;
   let resultState = true;
 
@@ -78,11 +78,20 @@ var ChooseSketch = function($) {
           HorseObjectArr[i].rankImage.width * 0.4,
           HorseObjectArr[i].rankImage.height * 0.4
         );
+        // Horse Head Image
+        $.image(
+          HorseObjectArr[i].rankHorseImage,
+          chooseTouch_XposArr[winOrderXpos] + 0,
+          $.windowHeight - 70,
+          HorseObjectArr[i].rankHorseImage.width * 0.2,
+          HorseObjectArr[i].rankHorseImage.height * 0.2
+        );
       }
       // Wait 5's transition to win or lose page
       setTimeout(function() {
         RankState = false;
-        if (resultState) { // excute once timer
+        if (resultState) {
+          // excute once timer
           ReusltTrigger();
           console.log("SHOW Result image");
           resultState = false;
@@ -97,6 +106,7 @@ var ChooseSketch = function($) {
     for (let i = 0; i < HorseObjectArr.length; i++) {
       let horseObj = HorseObjectArr[i];
       horseObj.rankImage = $.loadImage(rankImg[i]);
+      horseObj.rankHorseImage = $.loadImage(rankHorseImg[i]);
     }
   };
 

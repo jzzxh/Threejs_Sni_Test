@@ -53,16 +53,22 @@ var rankImg = [
   "./image/w3.png",
   "./image/w4.png",
 ];
+var rankHorseImg = [
+  "./image/horseP1.png",
+  "./image/horseP2.png",
+  "./image/horseP3.png",
+  "./image/horseP4.png",
+];
 
 // temp data
-var imgShow;
+/* var imgShow;
 var imgList = [
   "./image/horsew0.png",
   "./image/horsew1.png",
   "./image/horsew2.png",
   "./image/horsew3.png",
 ];
-
+ */
 function init() {
   const container = document.querySelector("#scene-container");
 
