@@ -45,6 +45,7 @@ Horse.prototype.GetModel = function(url, position, scale, _scene) {
     // this.speed = speed;
     this.model.position.set(this.position.x, this.position.y, this.position.z);
     this.model.visible = false;
+   /*  this.model.castShadow = true; */
     _scene.add(this.model);
 
     this.readState = true; // confirm model load fin

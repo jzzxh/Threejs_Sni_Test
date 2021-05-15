@@ -16,7 +16,7 @@ var modelFile = [
 ];
 var lastChange = false;
 
-// device estimate
+// device estimate current not use
 var deviceEstValue;
 var deviceEstSubstractVal = 0;
 
@@ -25,6 +25,12 @@ var vLine;
 
 // svg & glb scalar
 var svgGlbScalar = 1.3;
+
+// horse track
+var trackLoadState = false;
+
+// Place Object State
+var placeObjState = true;
 
 // set Horse updateRun State
 var updateRunCount = 0;
@@ -50,7 +56,7 @@ function allEqual(arr) {
 }
 
 function createHorseScene(pointX, pointZ) {
-  if (allEqual(HorseObjectArr) != lastChange) {
+  if (allEqual(HorseObjectArr) != lastChange && trackLoadState) {
     // recenter AR scene
     // XR8.XrController.recenter();
 
@@ -74,9 +80,9 @@ function createHorseScene(pointX, pointZ) {
 
         // set the curve line transform
         vLine.setPosition(new THREE.Vector3(pointX, 0.02, pointZ));
-        vLine.curveObject.rotation.set(0.06,0,0);
+        vLine.curveObject.rotation.set(0.06, 0, 0);
 
-/*         for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
+        /*         for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
           let VecX = HorseObjectArr[ik].path[i].x;
           let VecY = 0;
           let VecZ = HorseObjectArr[ik].path[i].z;
@@ -99,27 +105,67 @@ function createHorseScene(pointX, pointZ) {
 
 function createTrack(pointX, pointZ) {
   let loader = new THREE.TextureLoader();
-  let texture = loader.load("./image/trackrun2.png");
+  let texture = loader.load("./image/trackrun3.png", function(texture) {
+    trackLoadState = true;
+    let geometry = new THREE.PlaneBufferGeometry(3.2, 1.3, 1);
+    let material = new THREE.MeshBasicMaterial({
+      map: texture,
+      opacity: 1,
+      transparent: true,
+    });
 
-  let geometry = new THREE.PlaneBufferGeometry(3.2, 1.3, 1);
-  let material = new THREE.MeshBasicMaterial({
-    map: texture,
-    opacity: 1,
-    transparent: true,
+    let mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(pointX, 0, pointZ);
+    mesh.rotation.set(-1.5, 0, 0);
+    mesh.scale.set(
+      1.5 * svgGlbScalar * 0,
+      1.5 * svgGlbScalar * 0,
+      1.5 * svgGlbScalar * 0
+    );
+    global_Scene.add(mesh);
+
+    // create horse scene
+    createHorseScene(pointX, pointZ);
+
+    // Horse Animation In
+    for (let i = 0; i < HorseObjectArr.length; i++) {
+      const HorseObj = HorseObjectArr[i];
+      const tScale = { scale: 0 };
+      const tween = new TWEEN.Tween(tScale)
+        .to({ scale: 1 }, 1300)
+        .easing(TWEEN.Easing.Elastic.Out)
+        .onUpdate(() => {
+          HorseObj.model.scale.set(
+            0.02 * svgGlbScalar * tScale.scale,
+            0.02 * svgGlbScalar * tScale.scale,
+            0.02 * svgGlbScalar * tScale.scale
+          );
+        })
+        .start();
+    }
+
+    // Animation In
+    const scAll = { sc: 0 };
+    const tween = new TWEEN.Tween(scAll) // Create a new tween that modifies 'coords'.
+      .to({ sc: 1 }, 1300) // Move to (300, 200) in 1 second.
+      .easing(TWEEN.Easing.Elastic.Out) // Use an easing function to make the animation smooth.
+      .onUpdate(() => {
+        mesh.scale.set(
+          1.5 * svgGlbScalar * scAll.sc,
+          1.5 * svgGlbScalar * scAll.sc,
+          1.5 * svgGlbScalar * scAll.sc
+        );
+      })
+      .start();
   });
-
-  let mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(pointX, 0, pointZ);
-  mesh.rotation.set(-1.5, 0, 0);
-  mesh.scale.set(1.5 * svgGlbScalar, 1.5 * svgGlbScalar, 1.5 * svgGlbScalar);
-  global_Scene.add(mesh);
 }
 const imageTargetPipelineModule = () => {
   // Populates some object into an XR scene and sets the initial camera position. The scene and
   // camera come from xr3js, and are only available in the camera loop lifecycle onStart() or later.
   const initXrScene = ({ scene, camera, renderer }) => {
     console.log("initXrScene");
-
+    /*     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; */
     // deviceEstimate
     deviceEstValue = window.XR8.XrDevice.deviceEstimate().os;
     if (deviceEstValue === "Android") {
@@ -139,8 +185,14 @@ const imageTargetPipelineModule = () => {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 3, 100);
 
     // directionalLight.position.set(10, 10, 10).normalize();
-    directionalLight.position.set(1, 4.3, 2.5);
+    directionalLight.position.set(1, 4.3, 3.5);
     scene.add(directionalLight);
+
+    /*     directionalLight.shadow.mapSize.width = 1024; // default
+    directionalLight.shadow.mapSize.height = 1024; // default
+    directionalLight.shadow.camera.near = 0.5; // default
+    directionalLight.shadow.camera.far = 500; // default
+    directionalLight.castShadow = true; */
 
     /*    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 2,100);
     directionalLight2.position.set(10, 10, -10).normalize();
@@ -152,7 +204,7 @@ const imageTargetPipelineModule = () => {
     surface = new THREE.Mesh(
       new THREE.PlaneGeometry(100, 100, 1, 1),
       new THREE.ShadowMaterial({
-        opacity: 0.8,
+        opacity: 0.5,
       })
     );
     surface.rotateX(-Math.PI / 2);
@@ -237,6 +289,9 @@ const imageTargetPipelineModule = () => {
       let horseObj = HorseObjectArr[i];
       if (horseObj.mixer) horseObj.mixer.update(delta);
     }
+
+    // Tween update
+    TWEEN.update();
   };
 
   // Places content over image target
@@ -251,10 +306,12 @@ const imageTargetPipelineModule = () => {
 
   // create slam horse scene by touch position
   const placeObject = (pointX, pointZ) => {
-    createTrack(pointX, pointZ);
-    createHorseScene(pointX, pointZ);
+    if (placeObjState) {
+      createTrack(pointX, pointZ);
+      placeObjState = false;
+    }
 
-    console.log(`TouchX, ${pointX}, TouchZ, ${pointZ}`);
+    // console.log(`TouchX, ${pointX}, TouchZ, ${pointZ}`);
   };
   const placeObjectTouchHandler = e => {
     // Call XrController.recenter() when the canvas is tapped with two fingers. This resets the
