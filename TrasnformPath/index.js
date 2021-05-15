@@ -55,12 +55,14 @@ var button_State = true;
 // the getPoint starting variable - !important - You get me ;)
 var tsObj = [
   { moveT: 0.91, CountT: 0, Speed: 0.001 },
-  { moveT: 0.91, CountT: 0, Speed: 0.001 },
+  { moveT: 0.36, CountT: 0, Speed: 0.001 },
 ]; // start point half center
 var t = 0.91;
 var tc = 0;
-var inc = 0.001;
+var inc = 0.0001;
 var incSpeed = [0.0015, 0.001]; // difference Speed
+
+
 
 function getCube(color, size) {
   // cube mats and cube
@@ -116,7 +118,7 @@ function init() {
   scene.add(marker);
 
   // Load SVG file
-  loadSVG("./runway2.svg"); // runway2
+loadSVG("./pathw4.svg"); // runway2
 
   // test data push array object
   let tTestObjs = [];
@@ -180,7 +182,7 @@ function init() {
 
   // Hmtl modify
 
-  textDom = document.querySelector(".pInfo");
+  textDom = document.querySelector("#status");
   // textDom.style = 'color:white'
 
   renderer = new THREE.WebGLRenderer();
@@ -235,8 +237,8 @@ function loadSVG(url) {
 
         for (let k = 0, kl = subPath.getPoints().length; k < kl; k++) {
           linePoints.push({
-            x: subPath.getPoints()[k].x * 0.01 - 9.5,
-            y: subPath.getPoints()[k].y * 0.01 - 6,
+            x: subPath.getPoints()[k].x * 0.05 , //subPath.getPoints()[k].x * 0.01 - 9.5
+            y: subPath.getPoints()[k].y * 0.05 , //subPath.getPoints()[k].y * 0.01 - 6
             scalar: 0.8,
           });
         }
@@ -296,8 +298,8 @@ function render() {
         // Create the final object to add to the scene
         curveObject = new THREE.Line(geometry, material);
 
-        curveObject.rotation.set(1.5, 0, 0);
-        curveObject.position.set(0, 0, -5);
+        //curveObject.rotation.set(1.5, 0, 0);
+        //curveObject.position.set(0, 0, -5);
 
         curveObject.updateMatrixWorld(true);
 
@@ -325,8 +327,8 @@ function render() {
     // for (let s = 0; s < tsObj.length; s++) {
 
     let pts = pathCatmullRoom[1]
-      .getPoint(tsObj[1].moveT)
-      .applyMatrix4(curveObject.matrixWorld);
+      .getPoint(tsObj[1].moveT);
+      // .applyMatrix4(curveObject.matrixWorld);
     marker.position.set(pts.x, pts.y, pts.z);
     // modelPack[s].position.set(pts.x, pts.y, pts.z);
     model_2.position.set(pts.x, pts.y, pts.z);
@@ -360,6 +362,8 @@ function render() {
       tsObj[1].moveT += tsObj[1].Speed;
       tsObj[1].CountT += tsObj[1].Speed;
     }
+
+    textDom.innerHTML = tsObj[1].moveT;
 
     //start count
     /*         if (tsObj[0].CountT >= 1) {

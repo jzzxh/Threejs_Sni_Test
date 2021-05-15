@@ -1,7 +1,13 @@
 // init variable
 var delta;
 var clock;
-var svgFile = ["svg/R1.svg", "svg/R2.svg", "svg/R3.svg", "svg/R4.svg"];
+// var svgFile = ["svg/R1.svg", "svg/R2.svg", "svg/R3.svg", "svg/R4.svg"];
+var svgFile = [
+  "svg2/pathw1.svg",
+  "svg2/pathw2.svg",
+  "svg2/pathw3.svg",
+  "svg2/pathw4.svg",
+];
 var modelFile = [
   "model/horse_orange.glb",
   "model/horse_green.glb",
@@ -17,6 +23,9 @@ var deviceEstSubstractVal = 0;
 // visual svg path line
 var vLine;
 
+// svg & glb scalar
+var svgGlbScalar = 1.3;
+
 // set Horse updateRun State
 var updateRunCount = 0;
 var updateRunState = false;
@@ -27,8 +36,8 @@ var imageTargetLev2_State = false;
 
 var global_Scene;
 
-const raycaster = new THREE.Raycaster()
-const tapPosition = new THREE.Vector2()
+const raycaster = new THREE.Raycaster();
+const tapPosition = new THREE.Vector2();
 var surface; // Transparent surface for raycasting for object placement.
 
 function allEqual(arr) {
@@ -40,7 +49,7 @@ function allEqual(arr) {
   return new Set(krr).size == 1;
 }
 
-function createHorseScene(pointX,pointZ) {
+function createHorseScene(pointX, pointZ) {
   if (allEqual(HorseObjectArr) != lastChange) {
     // recenter AR scene
     // XR8.XrController.recenter();
@@ -64,15 +73,10 @@ function createHorseScene(pointX,pointZ) {
         //vLine.curveObject.position.set(0,0,0);
 
         // set the curve line transform
-        vLine.setPosition(new THREE.Vector3(pointX,0,pointZ));
-        // vLine.curveObject.quaternion.copy(new THREE.Vector4(detail.rotation.x,detail.rotation.y,detail.rotation.z*1.2,detail.rotation.w*-1));
+        vLine.setPosition(new THREE.Vector3(pointX, 0.02, pointZ));
+        vLine.curveObject.rotation.set(0.06,0,0);
 
-        // vLine.curveObject.quaternion.copy(detail.rotation);
-        // vLine.curveObject.rotation.set(1.5,0,0);
-        // vLine.curveObject.scale.set(detail.scale,detail.scale,detail.scale);
-        // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
-
-        for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
+/*         for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
           let VecX = HorseObjectArr[ik].path[i].x;
           let VecY = 0;
           let VecZ = HorseObjectArr[ik].path[i].z;
@@ -82,7 +86,7 @@ function createHorseScene(pointX,pointZ) {
             new THREE.Vector3(VecX, VecY, VecZ),
             global_Scene
           );
-        }
+        } */
       }
     }
     updateRunCount++;
@@ -93,6 +97,23 @@ function createHorseScene(pointX,pointZ) {
   }
 }
 
+function createTrack(pointX, pointZ) {
+  let loader = new THREE.TextureLoader();
+  let texture = loader.load("./image/trackrun2.png");
+
+  let geometry = new THREE.PlaneBufferGeometry(3.2, 1.3, 1);
+  let material = new THREE.MeshBasicMaterial({
+    map: texture,
+    opacity: 1,
+    transparent: true,
+  });
+
+  let mesh = new THREE.Mesh(geometry, material);
+  mesh.position.set(pointX, 0, pointZ);
+  mesh.rotation.set(-1.5, 0, 0);
+  mesh.scale.set(1.5 * svgGlbScalar, 1.5 * svgGlbScalar, 1.5 * svgGlbScalar);
+  global_Scene.add(mesh);
+}
 const imageTargetPipelineModule = () => {
   // Populates some object into an XR scene and sets the initial camera position. The scene and
   // camera come from xr3js, and are only available in the camera loop lifecycle onStart() or later.
@@ -145,11 +166,11 @@ const imageTargetPipelineModule = () => {
       let HorseModel = new Horse();
       HorseModel.GetModel(
         modelFile[i],
-        new THREE.Vector3(0, 0, -5),
-        0.06,
+        new THREE.Vector3(0, 0, 0),
+        0.02 * svgGlbScalar,
         scene
       );
-      HorseModel.GetSvgData(svgFile[i], 0.4);
+      HorseModel.GetSvgData(svgFile[i], 0.175 * svgGlbScalar);
       HorseObjectArr.push(HorseModel);
     }
 
@@ -161,7 +182,7 @@ const imageTargetPipelineModule = () => {
 
     // Set the initial camera position relative to the scene we just laid out. This must be at a
     // height greater than y=0.
-    camera.position.set(0, 5, 0);
+    camera.position.set(0, 3, 0);
   };
 
   // onUpdate
@@ -230,7 +251,9 @@ const imageTargetPipelineModule = () => {
 
   // create slam horse scene by touch position
   const placeObject = (pointX, pointZ) => {
-    createHorseScene(pointX,pointZ);
+    createTrack(pointX, pointZ);
+    createHorseScene(pointX, pointZ);
+
     console.log(`TouchX, ${pointX}, TouchZ, ${pointZ}`);
   };
   const placeObjectTouchHandler = e => {

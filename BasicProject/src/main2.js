@@ -11,6 +11,7 @@ var modelFile = [
   "model/horse_yellow.glb",
 ];
 var svgFile = ["svg/R1.svg", "svg/R2.svg", "svg/R3.svg", "svg/R4.svg"];
+
 var svgScalar = [1, 1, 1, 1];
 var randSpeed = [
   // random speed array
@@ -120,14 +121,15 @@ function init() {
       const startButtonContainer = document.querySelector(".startButton");
       startButtonContainer.style.display = "none";
 
-      
       for (let i = 0; i < HorseObjectArr.length; i++) {
         const HorseObj = HorseObjectArr[i];
-        const tScale = {scale: 0.002};
+        const tScale = { scale: 0.002 };
         const tween = new TWEEN.Tween(tScale)
-          .to({scale:0.13},2000)
-          .easing(TWEEN.Easing.Quadratic.Out) 
-          .onUpdate(() => { HorseObj.model.scale.set(tScale.scale,tScale.scale,tScale.scale);})
+          .to({ scale: 0.13 }, 2000)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .onUpdate(() => {
+            HorseObj.model.scale.set(tScale.scale, tScale.scale, tScale.scale);
+          })
           .start();
       }
 
@@ -196,7 +198,7 @@ function init() {
     HorseModel.GetModel(
       modelFile[i],
       new THREE.Vector3(0, 0, 0),
-      0.00,  // default 0.13
+      0.0, // default 0.13
       randArr[i],
       randtimescaleArr[i]
     );

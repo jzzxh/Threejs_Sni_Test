@@ -8,7 +8,7 @@ function Horse() {
   this.action;
   this.timescale = 1;
   this.speed = 0.001;
-  this.move = 0.91;
+  this.move = 0.36; // 0.91
   this.moveCount = 0; // main count to winner
   this.win = false;
   this.position = new THREE.Vector3(0, 0, 0);
@@ -73,9 +73,9 @@ Horse.prototype.GetSvgData = function(url, scalar) {
       for (let j = 0, jl = path.subPaths.length; j < jl; j++) {
         const subPath = path.subPaths[j];
         for (let k = 0, kl = subPath.getPoints().length; k < kl; k++) {
-          let x = (subPath.getPoints()[k].x * 0.01 - 9.55) * this.scalar;
+          let x = (subPath.getPoints()[k].x * 0.052 ) * this.scalar; //(subPath.getPoints()[k].x * 0.01 - 9.55) * this.scalar;
           let y = 0;
-          let z = (subPath.getPoints()[k].y * 0.01 - 5.8) * this.scalar ;
+          let z = (subPath.getPoints()[k].y * 0.05 ) * this.scalar ; //(subPath.getPoints()[k].y * 0.01 - 5.8) * this.scalar ;
           this.path.push(new THREE.Vector3(x, y, z));
         }
       }
