@@ -2,14 +2,116 @@
   z-index: 0 !important;
   position: absolute;
   width: 100%;
-  height: auto;
+  height: 100%;
   margin: 0;
   padding: 0;
   }
   body{
     touch-action: pan-x pan-y; /* prevent zoom gesture */
-    margin: -1px 0px 0px 0px !important;
+    margin: 0px 0px 0px 0px !important;
     padding: 0;
     overflow: hidden;
     background-color: black;
+  }
+
+  .introPage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 16;
+    display: flex;
+  }
+  
+  .introPage #introImg {
+    width: 100%;
+    height: auto;
+  }
+  
+  .explainPage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 14;
+    display: flex;
+  }
+  
+  .explainPage #explainImg {
+    width: 100%;
+    height: auto;
+  }
+  
+  .choosePage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 13;
+    display: flex;
+  }
+  
+  .choosePage #chooseImg {
+    width: 100%;
+    height: auto;
+  }
+  
+  #ChooseInP5{
+    z-index: 15;
+    position: absolute; /* ios can't set 'relative ' */
+    top: 0px;
+    left: 0px;    
+    /* display: none; */
+  }
+  
+  
+  .rankPage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 13; /* index:13 */
+    display: none; /* js control 'flex' */
+  }
+  
+  .rankPage #rankImg {
+    width: 100%;
+    height: auto;
+  }
+  
+  .resultPage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 14; 
+    display: none; /* js control 'flex' */
+  }
+  
+  .target {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 13; /* index:13 */
+    display: none; /* js control 'block' */
+  }
+  
+  .startButton {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 15; 
+    display: none; /* js control 'flex' */
+  }
+  
+  .startButton #startImg {
+    width: 100%;
+    height: auto;
   }

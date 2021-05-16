@@ -23,6 +23,7 @@ function Horse() {
   this.winOrder = 0;
   this.userChoose = -1;
   this.rankImage;
+  this.rankHorseImage;
 }
 
 Horse.prototype.loadModel = function(url) {
@@ -31,9 +32,16 @@ Horse.prototype.loadModel = function(url) {
   });
 };
 
-Horse.prototype.GetModel = function(url, position, scale, _scene) {
+Horse.prototype.GetModel = function(
+  url,
+  position,
+  scale,
+  speed,
+  timescale,
+  _scene
+) {
   this.loadModel(url).then(result => {
-    // this.timescale = timescale;
+    this.timescale = timescale;
     this.model = result.scene;
     this.mixer = new THREE.AnimationMixer(this.model);
     this.action = this.mixer.clipAction(result.animations[0]);
@@ -42,10 +50,10 @@ Horse.prototype.GetModel = function(url, position, scale, _scene) {
     this.scale = scale;
     this.model.scale.set(this.scale, this.scale, this.scale);
     this.position = position;
-    // this.speed = speed;
+    this.speed = speed;
     this.model.position.set(this.position.x, this.position.y, this.position.z);
     this.model.visible = false;
-   /*  this.model.castShadow = true; */
+    /*  this.model.castShadow = true; */
     _scene.add(this.model);
 
     this.readState = true; // confirm model load fin
@@ -74,9 +82,9 @@ Horse.prototype.GetSvgData = function(url, scalar) {
       for (let j = 0, jl = path.subPaths.length; j < jl; j++) {
         const subPath = path.subPaths[j];
         for (let k = 0, kl = subPath.getPoints().length; k < kl; k++) {
-          let x = (subPath.getPoints()[k].x * 0.052 ) * this.scalar; //(subPath.getPoints()[k].x * 0.01 - 9.55) * this.scalar;
+          let x = subPath.getPoints()[k].x * 0.052 * this.scalar; //(subPath.getPoints()[k].x * 0.01 - 9.55) * this.scalar;
           let y = 0;
-          let z = (subPath.getPoints()[k].y * 0.05 ) * this.scalar ; //(subPath.getPoints()[k].y * 0.01 - 5.8) * this.scalar ;
+          let z = subPath.getPoints()[k].y * 0.05 * this.scalar; //(subPath.getPoints()[k].y * 0.01 - 5.8) * this.scalar ;
           this.path.push(new THREE.Vector3(x, y, z));
         }
       }

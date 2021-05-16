@@ -70,21 +70,21 @@ var ChooseSketch = function($) {
     if (RankState) {
       for (let i = 0; i < HorseObjectArr.length; i++) {
         let horseObj = HorseObjectArr[i];
-        let winOrderXpos = HorseObjectArr[i].winOrder - 1;
+        let winOrderXpos = horseObj.winOrder - 1;
         $.image(
-          HorseObjectArr[i].rankImage,
+          horseObj.rankImage,
           chooseTouch_XposArr[winOrderXpos] + 10,
           $.windowHeight / 2,
-          HorseObjectArr[i].rankImage.width * 0.4,
-          HorseObjectArr[i].rankImage.height * 0.4
+          horseObj.rankImage.width * 0.4,
+          horseObj.rankImage.height * 0.4
         );
         // Horse Head Image
         $.image(
-          HorseObjectArr[i].rankHorseImage,
+          horseObj.rankHorseImage,
           chooseTouch_XposArr[winOrderXpos] + 0,
           $.windowHeight - 70,
-          HorseObjectArr[i].rankHorseImage.width * 0.2,
-          HorseObjectArr[i].rankHorseImage.height * 0.2
+          horseObj.rankHorseImage.width * 0.2,
+          horseObj.rankHorseImage.height * 0.2
         );
       }
       // Wait 5's transition to win or lose page
