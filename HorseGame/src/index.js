@@ -86,7 +86,7 @@ var updateRunState = false;
 
 // image target state
 var imageTarget_State = false;
-var imageTargetLev2_State = false;
+var updateRun_State = false;
 
 var global_Scene;
 
@@ -122,7 +122,7 @@ function createHorseScene(pointX, pointZ) {
         horseObj.model.visible = true;
 
         HorseObjectArr[ik].SetCatMullPath();
-        //HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
+        // HorseObjectArr[ik].updatePosition(new THREE.Vector3(0, 0, 0));
         console.log("IK" + ik + ":" + HorseObjectArr[ik].path.length);
 
         // Visual Path Cube
@@ -221,7 +221,7 @@ const imageTargetPipelineModule = () => {
     /*     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap; */
     // deviceEstimate
-/*     deviceEstValue = window.XR8.XrDevice.deviceEstimate().os;
+    /*     deviceEstValue = window.XR8.XrDevice.deviceEstimate().os;
     if (deviceEstValue === "Android") {
       deviceEstSubstractVal = 0;
     } else {
@@ -256,13 +256,13 @@ const imageTargetPipelineModule = () => {
       // Event listener
       if (startButtonState) {
         // hide target container
-        const tartgetContainer = document.querySelector(".target");
-        tartgetContainer.style.display = "none";
+        /*         const tartgetContainer = document.querySelector(".target");
+        tartgetContainer.style.display = "none"; */
 
         // hide button container show
         const startButtonContainer = document.querySelector(".startButton");
         startButtonContainer.style.display = "none";
-
+        /* 
         for (let i = 0; i < HorseObjectArr.length; i++) {
           const HorseObj = HorseObjectArr[i];
           const tScale = { scale: 0.002 };
@@ -277,9 +277,8 @@ const imageTargetPipelineModule = () => {
               );
             })
             .start();
-        }
-
-        
+        } */
+        StartState = true;
       }
       console.log("Fire.!");
     });
@@ -362,11 +361,13 @@ const imageTargetPipelineModule = () => {
     if (allEqual(HorseObjectArr) && imageTarget_State) {
       // confirm all path are settle, set horse init position
       //* once excution
+
       for (let j = 0; j < HorseObjectArr.length; j++) {
         HorseObjectArr[j].updateRun(vLine.curveObject);
       }
+
       updateRunCount++; // excute once
-      imageTargetLev2_State = true;
+      updateRun_State = true;
       imageTarget_State = false;
       console.log("update RUN.....");
     }
@@ -380,13 +381,20 @@ const imageTargetPipelineModule = () => {
       console.log("StarState ---> True");
       updateRunCount++;
     }
-
-    if (allEqual(HorseObjectArr) && updateRunCount == 3 && StartState) {
-      //* Loop Condition updateRun
+    
+    //* Loop Condition updateRun
+    if (updateRun_State) {
       for (let j = 0; j < HorseObjectArr.length; j++) {
         HorseObjectArr[j].updateRun(vLine.curveObject);
       }
     }
+
+    /*   if (allEqual(HorseObjectArr) && updateRunCount == 3 && StartState) {
+      //* Loop Condition updateRun
+      for (let j = 0; j < HorseObjectArr.length; j++) {
+        HorseObjectArr[j].updateRun(vLine.curveObject);
+      }
+    } */
     // Winner Checks
     if (winnerCheck) {
       for (let i = 0; i < HorseObjectArr.length; i++) {
@@ -451,8 +459,19 @@ const imageTargetPipelineModule = () => {
   // create slam horse scene by touch position
   const placeObject = (pointX, pointZ) => {
     if (placeObjState) {
+      // show start button
+      const startButtonContainer = document.querySelector(".startButton");
+      startButtonContainer.style.display = "block";
+      // hide target container
+      const tartgetContainer = document.querySelector(".target");
+      tartgetContainer.style.display = "none";
+
+      setTimeout(function() {
+        startButtonState = true;
+      }, 2000);
+
       createTrack(pointX, pointZ);
-      StartState = true;
+
       placeObjState = false;
     }
 

@@ -113,10 +113,6 @@ function init() {
   startButtonContainer.addEventListener("click", function(e) {
     // Event listener
     if (startButtonState) {
-      // hide target container
-      const tartgetContainer = document.querySelector(".target");
-      tartgetContainer.style.display = "none";
-
       // hide button container show
       const startButtonContainer = document.querySelector(".startButton");
       startButtonContainer.style.display = "none";
@@ -137,6 +133,25 @@ function init() {
     }
     console.log("Fire.!");
   });
+
+  // Touch Button Triiger
+  const TouchHintContainer = document.querySelector(".target");
+  TouchHintContainer.addEventListener("click", function(e) {
+    // show start button
+    const startButtonContainer = document.querySelector(".startButton");
+    startButtonContainer.style.display = "block";
+    // hide target container
+    const tartgetContainer = document.querySelector(".target");
+    tartgetContainer.style.display = "none";
+    startButtonState = true;
+  });
+
+  // Test css pointer-event:none click event
+  /*   document.addEventListener('click' ,function(e){
+    let conDiv = document.querySelector('.startButton');
+    let target = e.target;
+    console.log(target);
+  }); */
 
   /*   const GotitBut = document.querySelector(".onboarding-button");
   GotitBut.addEventListener("click", function (e) {

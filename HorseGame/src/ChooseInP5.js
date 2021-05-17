@@ -102,13 +102,13 @@ var ChooseSketch = function($) {
       }
       // Wait 5's transition to win or lose page
       setTimeout(function() {
-        RankState = false;
         if (resultState) {
           // excute once timer
           ReusltTrigger();
           console.log("SHOW Result image");
           resultState = false;
         }
+        RankState = false;
         $.noLoop();
       }, 6000);
     }
@@ -184,11 +184,11 @@ var ChooseSketch = function($) {
         tartgetContainer.style.display = "block";
 
         // start button container show
-        const startButtonContainer = document.querySelector(".startButton");
+/*         const startButtonContainer = document.querySelector(".startButton");
         startButtonContainer.style.display = "block";
         setTimeout(function() {
           startButtonState = true;
-        }, 2000);
+        }, 2000); */
         chooseButton_State = false;
       }
     }

@@ -167,11 +167,11 @@ var ChooseSketch = function($) {
         tartgetContainer.style.display = "block";
 
         // start button container show
-        const startButtonContainer = document.querySelector(".startButton");
+/*         const startButtonContainer = document.querySelector(".startButton");
         startButtonContainer.style.display = "block";
         setTimeout(function() {
           startButtonState = true;
-        }, 2000);
+        }, 2000); */
         chooseButton_State = false;
       }
     }

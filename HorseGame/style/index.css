@@ -26,7 +26,7 @@
   
   .introPage #introImg {
     width: 100%;
-    height: auto;
+    height: 100%;
   }
   
   .explainPage {
@@ -41,7 +41,7 @@
   
   .explainPage #explainImg {
     width: 100%;
-    height: auto;
+    height: 100%;
   }
   
   .choosePage {
@@ -56,7 +56,7 @@
   
   .choosePage #chooseImg {
     width: 100%;
-    height: auto;
+    height: 100%;
   }
   
   #ChooseInP5{
@@ -97,8 +97,9 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 13; /* index:13 */
+    z-index: 12; /* index:13 */
     display: none; /* js control 'block' */
+    pointer-events: none;
   }
   
   .startButton {
@@ -107,7 +108,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 15; 
+    z-index: 12; 
     display: none; /* js control 'flex' */
   }
   

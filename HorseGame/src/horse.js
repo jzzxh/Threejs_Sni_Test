@@ -8,10 +8,10 @@ function Horse() {
   this.action;
   this.timescale = 1;
   this.speed = 0.001;
-  this.move = 0.36; // 0.91
+  this.move = 0.36; // 0.91 0.36
   this.moveCount = 0; // main count to winner
   this.win = false;
-  this.position = new THREE.Vector3(0, 0, 0);
+  this.position = new THREE.Vector3(0,0,0);
   this.scale;
   this.path = [];
   this.catmullRoomPath = [];
