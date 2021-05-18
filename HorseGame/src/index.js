@@ -14,6 +14,12 @@ var modelFile = [
   "model/horse_pink.glb",
   "model/horse_yellow.glb",
 ];
+/* var modelFile = [
+  "gltf/Horse_1.gltf",
+  "gltf/Horse_2.gltf",
+  "gltf/Horse_3.gltf",
+  "gltf/Horse_4.gltf",
+]; */
 var lastChange = false;
 
 // device estimate current not use
@@ -159,7 +165,7 @@ function createHorseScene(pointX, pointZ) {
 
 function createTrack(pointX, pointZ) {
   let loader = new THREE.TextureLoader();
-  let texture = loader.load("./image/trackrun3.png", function(texture) {
+  let texture = loader.load("./image/trackrun4.png", function(texture) {
     trackLoadState = true;
     let geometry = new THREE.PlaneBufferGeometry(3.2, 1.3, 1);
     let material = new THREE.MeshBasicMaterial({
@@ -291,24 +297,24 @@ const imageTargetPipelineModule = () => {
     clock = new THREE.Clock();
 
     // Light Setup
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 3, 100);
+    lightPosition = {
+      lgihtT: new THREE.Vector3(0, 5, 0),
+      lightL: new THREE.Vector3(-10, 5, 0),
+      lightR: new THREE.Vector3(10, 5, 0),
+      lightB: new THREE.Vector3(0, 5, -10),
+      LightF: new THREE.Vector3(0, 5, 10),
+    };
 
-    // directionalLight.position.set(10, 10, 10).normalize();
-    directionalLight.position.set(1, 4.3, 3.5);
-    scene.add(directionalLight);
-
-    /*     directionalLight.shadow.mapSize.width = 1024; // default
-    directionalLight.shadow.mapSize.height = 1024; // default
-    directionalLight.shadow.camera.near = 0.5; // default
-    directionalLight.shadow.camera.far = 500; // default
-    directionalLight.castShadow = true; */
-
-    /*    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 2,100);
-    directionalLight2.position.set(10, 10, -10).normalize();
-    scene.add(directionalLight2); */
+    for (let lightIns in lightPosition) {
+      let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+      dirLight.position.copy(lightPosition[lightIns]);
+      scene.add(dirLight);
+    }
 
     const light = new THREE.AmbientLight(0x404040, 5); // soft white light
     scene.add(light);
+
+    // End Light Setup
 
     surface = new THREE.Mesh(
       new THREE.PlaneGeometry(100, 100, 1, 1),
@@ -362,9 +368,9 @@ const imageTargetPipelineModule = () => {
       // confirm all path are settle, set horse init position
       //* once excution
 
-      for (let j = 0; j < HorseObjectArr.length; j++) {
+      /*   for (let j = 0; j < HorseObjectArr.length; j++) {
         HorseObjectArr[j].updateRun(vLine.curveObject);
-      }
+      } */
 
       updateRunCount++; // excute once
       updateRun_State = true;
@@ -381,7 +387,7 @@ const imageTargetPipelineModule = () => {
       console.log("StarState ---> True");
       updateRunCount++;
     }
-    
+
     //* Loop Condition updateRun
     if (updateRun_State) {
       for (let j = 0; j < HorseObjectArr.length; j++) {

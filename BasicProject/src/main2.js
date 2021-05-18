@@ -4,11 +4,17 @@ var delta;
 var clock;
 var statsUI;
 var lastChange = false;
-var modelFile = [
+/* var modelFile = [
   "model/horse_orange.glb",
   "model/horse_green.glb",
   "model/horse_pink.glb",
   "model/horse_yellow.glb",
+]; */
+var modelFile = [
+  "glb/Horse_1.glb",
+  "glb/Horse_2.glb",
+  "glb/Horse_3.glb",
+  "glb/Horse_4.glb",
 ];
 var svgFile = ["svg/R1.svg", "svg/R2.svg", "svg/R3.svg", "svg/R4.svg"];
 
@@ -226,16 +232,41 @@ function init() {
   //* End Custom Code
 
   // Light Setup
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-  directionalLight.position.set(10, 10, 10).normalize();
+  lightPosition = {
+    lgihtT: new THREE.Vector3(0, 5, 0),
+    lightL: new THREE.Vector3(-10, 5, 0),
+    lightR: new THREE.Vector3(10, 5, 0),
+    lightB: new THREE.Vector3(0, 5, -10),
+    LightF: new THREE.Vector3(0, 5, 10),
+  };
+
+  for (let lightIns in lightPosition) {
+    let dirLight = new THREE.DirectionalLight(0xffffff, 2);
+    dirLight.position.copy(lightPosition[lightIns]);
+    scene.add(dirLight);
+  }
+
+  // End Light Setup
+
+  /*   for(let i = 0;i<lightPosition.length;i++){
+    let directionalLight = lightPosition[0];
+    scene.add(directionalLight);
+  } */
+
+  /*   const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+  directionalLight.position.set(0, 1, 0).normalize();
   scene.add(directionalLight);
+ */
+  /*   const hemislight = new THREE.HemisphereLight(0xffffbb, 0x080820, 6);
+  hemislight.position.set(0, 5, 0);
+  scene.add(hemislight); */
 
-  const directionalLight2 = new THREE.DirectionalLight(0xffffff, 2);
-  directionalLight2.position.set(10, 10, -10).normalize();
-  scene.add(directionalLight2);
+  /*   const directionalLight2 = new THREE.DirectionalLight(0xffffff, 3);
+  directionalLight2.position.set(-10, 5, 0).normalize();
+  scene.add(directionalLight2); */
 
-  const light = new THREE.AmbientLight(0x404040, 5); // soft white light
-  scene.add(light);
+  const Amblight = new THREE.AmbientLight(0x404040, 5); // soft white light
+  scene.add(Amblight);
 
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(container.clientWidth, container.clientHeight);
