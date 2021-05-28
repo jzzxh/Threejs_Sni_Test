@@ -8,18 +8,18 @@ var svgFile = [
   "svg2/pathw3.svg",
   "svg2/pathw4.svg",
 ];
-var modelFile = [
+/* var modelFile = [
   "model/horse_orange.glb",
   "model/horse_green.glb",
   "model/horse_pink.glb",
   "model/horse_yellow.glb",
-];
-/* var modelFile = [
-  "gltf/Horse_1.gltf",
-  "gltf/Horse_2.gltf",
-  "gltf/Horse_3.gltf",
-  "gltf/Horse_4.gltf",
 ]; */
+var modelFile = [
+  "glb/Horse_1.glb",
+  "glb/Horse_2.glb",
+  "glb/Horse_3.glb",
+  "glb/Horse_4.glb",
+];
 var lastChange = false;
 
 // device estimate current not use
@@ -80,6 +80,12 @@ var rankHorseImg = [
   "./image/horseP3.png",
   "./image/horseP4.png",
 ];
+var rankHorseChooseImg = [
+  "./image/rankch_p1.png",
+  "./image/rankch_p2.png",
+  "./image/rankch_p3.png",
+  "./image/rankch_p4.png",
+];
 
 var loadImageState = false;
 
@@ -93,6 +99,9 @@ var updateRunState = false;
 // image target state
 var imageTarget_State = false;
 var updateRun_State = false;
+
+// choose indicate hint
+var indicateObject;
 
 var global_Scene;
 
@@ -187,6 +196,9 @@ function createTrack(pointX, pointZ) {
     // create horse scene
     createHorseScene(pointX, pointZ);
 
+    // show indicateObject
+    indicateObject.visible = true;
+
     // Horse Animation In
     for (let i = 0; i < HorseObjectArr.length; i++) {
       const HorseObj = HorseObjectArr[i];
@@ -254,7 +266,7 @@ const imageTargetPipelineModule = () => {
         })
         .start();
       explainButton_State = true;
-    }, 3000);
+    }, 5500);
 
     // Start Button Triiger
     const startButtonContainer = document.querySelector(".startButton");
@@ -290,8 +302,16 @@ const imageTargetPipelineModule = () => {
     });
 
     // pass xr8 scene to global
-
     global_Scene = scene;
+
+    // choose indicate object
+    const geometry = new THREE.ConeGeometry(0.8, 2.8, 20);
+    const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+    indicateObject = new THREE.Mesh(geometry, material);
+    indicateObject.scale.set(0.5 * 0.2, 0.3 * 0.2 , 0.5 * 0.2);
+    indicateObject.rotation.z = Math.PI;
+    indicateObject.visible = false;
+    scene.add(indicateObject);
 
     // init clock instance
     clock = new THREE.Clock();
@@ -306,7 +326,7 @@ const imageTargetPipelineModule = () => {
     };
 
     for (let lightIns in lightPosition) {
-      let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+      let dirLight = new THREE.DirectionalLight(0xffffff, 3);
       dirLight.position.copy(lightPosition[lightIns]);
       scene.add(dirLight);
     }
@@ -392,6 +412,15 @@ const imageTargetPipelineModule = () => {
     if (updateRun_State) {
       for (let j = 0; j < HorseObjectArr.length; j++) {
         HorseObjectArr[j].updateRun(vLine.curveObject);
+
+        // show choose indicate top of horse
+        if (HorseObjectArr[j].userChoose == 1) {
+          indicateObject.position.set(
+            HorseObjectArr[j].model.position.x,
+            HorseObjectArr[j].model.position.y + 0.7,
+            HorseObjectArr[j].model.position.z
+          );
+        }
       }
     }
 

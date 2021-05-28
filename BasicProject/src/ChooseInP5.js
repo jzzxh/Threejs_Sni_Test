@@ -2,7 +2,7 @@ var ChooseSketch = function($) {
   let explainTouch_Xpos;
   let explainTouch_Ypos;
   let explainTouch_W;
-  let explainTouch_H = 150;
+  let explainTouch_H = 250;
 
   let chooseTouch_Xpos = -50;
   let chooseTouch_XposArr = [];
@@ -20,6 +20,7 @@ var ChooseSketch = function($) {
   let resultImg = ["./image/winner.jpg", "./image/loser.jpg"];
   let reulstPageImg;
   let resultState = true;
+  let chooseTouchAddValue;
 
   $.setup = function() {
     $.createCanvas($.windowWidth, $.windowHeight);
@@ -32,9 +33,26 @@ var ChooseSketch = function($) {
 
     // choose winner page init
     chooseTouch_H = $.windowHeight;
-    for (let i = 0; i < 4; i++) {
-      chooseTouch_XposArr.push((chooseTouch_Xpos += 80));
+
+    // Get Canvas width condition
+    if ($.width > 400) {
+      chooseTouchAddValue = 88;
+    } else if ($.width < 400 && $.width > 320) {
+      chooseTouchAddValue = 80;
+    } else {
+      chooseTouchAddValue = 70;
     }
+
+    if ($.width < 350) {
+      chooseTouch_W = 58;
+    } else {
+      chooseTouch_W = 70;
+    }
+
+    for (let i = 0; i < 4; i++) {
+      chooseTouch_XposArr.push((chooseTouch_Xpos += chooseTouchAddValue));
+    }
+    console.log("p5js canvas width: " + $.width);
     console.log(chooseTouch_XposArr);
   };
 
@@ -83,10 +101,20 @@ var ChooseSketch = function($) {
           horseObj.rankHorseImage,
           chooseTouch_XposArr[winOrderXpos] + 0,
           $.windowHeight - 70,
-          horseObj.rankHorseImage.width * 0.2,
-          horseObj.rankHorseImage.height * 0.2
+          horseObj.rankHorseImage.width * 0.18,
+          horseObj.rankHorseImage.height * 0.18
         );
+        // Horse choose rank Image
+        if (horseObj.userChoose == 1)
+          $.image(
+            HorseObjectArr[horseObj.winOrder - 1].rankHorseChooseImg,
+            0,
+            0,
+            $.width,
+            $.height
+          );
       }
+
       // Wait 5's transition to win or lose page
       setTimeout(function() {
         RankState = false;
@@ -96,7 +124,7 @@ var ChooseSketch = function($) {
           console.log("SHOW Result image");
           resultState = false;
         }
-        $.noLoop();
+        // $.noLoop();
       }, 6000);
     }
   };
@@ -107,6 +135,7 @@ var ChooseSketch = function($) {
       let horseObj = HorseObjectArr[i];
       horseObj.rankImage = $.loadImage(rankImg[i]);
       horseObj.rankHorseImage = $.loadImage(rankHorseImg[i]);
+      horseObj.rankHorseChooseImg = $.loadImage(rankHorseChooseImg[i]);
     }
   };
 
@@ -167,7 +196,7 @@ var ChooseSketch = function($) {
         tartgetContainer.style.display = "block";
 
         // start button container show
-/*         const startButtonContainer = document.querySelector(".startButton");
+        /*         const startButtonContainer = document.querySelector(".startButton");
         startButtonContainer.style.display = "block";
         setTimeout(function() {
           startButtonState = true;

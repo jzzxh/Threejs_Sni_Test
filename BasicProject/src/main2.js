@@ -53,6 +53,9 @@ var startButtonState = false;
 var RankState = false; /* default (false) */
 var explainButton_State = false;
 
+// choose indicate hint
+var indicateObject;
+
 // rank image
 var rankImg = [
   "./image/w1.png",
@@ -65,6 +68,12 @@ var rankHorseImg = [
   "./image/horseP2.png",
   "./image/horseP3.png",
   "./image/horseP4.png",
+];
+var rankHorseChooseImg =[
+  "./image/rankch_p1.png",
+  "./image/rankch_p2.png",
+  "./image/rankch_p3.png",
+  "./image/rankch_p4.png"
 ];
 
 // temp data
@@ -104,7 +113,7 @@ function init() {
       })
       .start();
     explainButton_State = true;
-  }, 3000);
+  }, 5000);
 
   // Start Button Position
   /*   const butObj = document.querySelector(".btn");
@@ -187,6 +196,14 @@ function init() {
   // imgShow.style.top = String(container.clientHeight / 2 - 100) + "px";
   imgShow.style.top = "50px";
   imgShow.style.display = "none"; */
+
+  // choose indicate object
+  const geometry = new THREE.ConeGeometry( 0.8, 2.8, 20 );
+  const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+  indicateObject = new THREE.Mesh(geometry, material);
+  indicateObject.scale.set(0.5,0.3,0.5);
+  indicateObject.rotation.z = Math.PI;
+  scene.add(indicateObject);
 
   // controls
   controls = new THREE.OrbitControls(camera, container);
@@ -300,7 +317,7 @@ function render() {
       vLine.getLine(HorseObjectArr[ik].catmullRoomPath);
 
       // set the curve line transform
-      vLine.curveObject.rotation.set(0.5, 0, 0);
+      // vLine.curveObject.rotation.set(0.5, 0, 0);
       // vLine.curveObject.position.copy(new THREE.Vector3(10,0,0));
 
       for (let i = 0; i < HorseObjectArr[ik].path.length; i++) {
@@ -333,6 +350,15 @@ function render() {
     //* Loop Condition
     for (let j = 0; j < HorseObjectArr.length; j++) {
       HorseObjectArr[j].updateRun(vLine.curveObject);
+
+      // show choose indicate top of horse
+      if (HorseObjectArr[j].userChoose == 1) {
+        indicateObject.position.set(
+          HorseObjectArr[j].model.position.x ,
+          HorseObjectArr[j].model.position.y + 4,
+          HorseObjectArr[j].model.position.z 
+        );
+      }
     }
   }
 
