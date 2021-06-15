@@ -36,7 +36,7 @@ VisCube.prototype.getLine = function(catmullPath, _scene) {
   let material = new THREE.LineBasicMaterial({
     color: 0xff0000,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0,
   });
   this.curveObject = new THREE.Line(geometry, material);
   _scene.add(this.curveObject);

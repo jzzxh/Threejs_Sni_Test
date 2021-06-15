@@ -124,6 +124,23 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
 }
 
+function mutationCallback(mutationRecord) {
+  RankState = false;
+}
+
+function mutationInit() {
+  const observer = new MutationObserver(mutationCallback);
+  const config = {
+    attributes: true,
+    attributeOldValue: true,
+    childList: true,
+  };
+
+  let resultContainer = document.querySelector(".resultPage");
+
+  observer.observe(resultContainer, config);
+}
+
 function createHorseScene(pointX, pointZ) {
   if (allEqual(HorseObjectArr) != lastChange && trackLoadState) {
     // recenter AR scene
@@ -308,7 +325,7 @@ const imageTargetPipelineModule = () => {
     const geometry = new THREE.ConeGeometry(0.8, 2.8, 20);
     const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
     indicateObject = new THREE.Mesh(geometry, material);
-    indicateObject.scale.set(0.5 * 0.2, 0.3 * 0.2 , 0.5 * 0.2);
+    indicateObject.scale.set(0.5 * 0.2, 0.3 * 0.2, 0.5 * 0.2);
     indicateObject.rotation.z = Math.PI;
     indicateObject.visible = false;
     scene.add(indicateObject);
@@ -317,7 +334,7 @@ const imageTargetPipelineModule = () => {
     clock = new THREE.Clock();
 
     // Light Setup
-    lightPosition = {
+    const lightPosition = {
       lgihtT: new THREE.Vector3(0, 5, 0),
       lightL: new THREE.Vector3(-10, 5, 0),
       lightR: new THREE.Vector3(10, 5, 0),
@@ -344,7 +361,7 @@ const imageTargetPipelineModule = () => {
     );
     surface.rotateX(-Math.PI / 2);
     surface.position.set(0, 0, 0);
-    surface.receiveShadow = true;
+    /* surface.receiveShadow = true; */
     scene.add(surface);
 
     //* Custom Code
@@ -373,6 +390,10 @@ const imageTargetPipelineModule = () => {
     vLine = new VisCube();
 
     console.log(HorseObjectArr);
+
+    //mutation oberve
+    mutationInit();
+
     //* End Custom Code
 
     // Set the initial camera position relative to the scene we just laid out. This must be at a

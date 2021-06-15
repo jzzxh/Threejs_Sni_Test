@@ -12,7 +12,7 @@ var ChooseSketch = function($) {
   let chooseButton_State = false;
   let chooseResult = -1;
 
-  let visualToogle = true;
+  let visualToogle = false; // toggle the hitTest area
 
   let hitTestX = -1;
   let hitTestY = -1;
@@ -134,7 +134,7 @@ var ChooseSketch = function($) {
           console.log("SHOW Result image");
           resultState = false;
         }
-        RankState = false;
+        //  RankState = false;
         // $.noLoop();
       }, 6000);
     }
@@ -269,6 +269,8 @@ var ChooseSketch = function($) {
       }
     }
 
+    
+
     const ResultContainer = document.querySelector(".resultPage");
     ResultContainer.style.display = "flex";
     let elem = document.createElement("img");
@@ -276,6 +278,8 @@ var ChooseSketch = function($) {
     elem.setAttribute("width", "100%");
     elem.setAttribute("height", "100%");
     ResultContainer.appendChild(elem);
+
+   /*  RankState = false; */
 
     // const RankContainer = document.querySelector(".rankPage");
     // RankContainer.style.display = "none";
