@@ -1,3 +1,15 @@
+var model;
+
+const loadmodel = function(url) {
+  return new Promise(resolve => {
+    new THREE.GLTFLoader().load(url, resolve);
+  });
+};
+
+const test = function(tt) {
+  console.log("call init TT" + tt);
+};
+
 const placegroundScenePipelineModule = () => {
   // Populates some object into an XR scene and sets the initial camera position. The scene and
   // camera come from xr3js, and are only available in the camera loop lifecycle onStart() or later.
@@ -13,13 +25,13 @@ const placegroundScenePipelineModule = () => {
     };
 
     for (let lightIns in lightPosition) {
-      let dirLight = new THREE.DirectionalLight(0xffffff, 3);
+      let dirLight = new THREE.DirectionalLight(0xffffff, 0.3);
       dirLight.position.copy(lightPosition[lightIns]);
       scene.add(dirLight);
     }
     scene.add(new THREE.AmbientLight(0x404040, 5)); // Add soft white light to the scene.
 
-    let loader = new THREE.TextureLoader();
+    /*     let loader = new THREE.TextureLoader();
     let texture = loader.load("./trackrun4.png", function(texture) {
       trackLoadState = true;
       let geometry = new THREE.PlaneBufferGeometry(3.2, 1.3, 1);
@@ -34,7 +46,17 @@ const placegroundScenePipelineModule = () => {
       mesh.rotation.set(-1.5, 0, 0);
       mesh.scale.set(1.5, 1.5, 1.5);
       scene.add(mesh);
+    }); */
+
+    //* load glb track
+    loadmodel("./Truck3d_2.glb").then(result => {
+      model = result.scene;
+      model.position.set(0, 0, -5);
+      model.scale.set(0.5, 0.5, 0.5);
+      scene.add(model);
     });
+
+    // test("Hello world!!");
 
     // Set the initial camera position relative to the scene we just laid out. This must be at a
     // height greater than y=0.
@@ -46,6 +68,12 @@ const placegroundScenePipelineModule = () => {
       XR8.XrController.recenter();
     }
   };
+
+  /*   const loadmodel = url => {
+    return new Promise(resolve => {
+      new THREE.GLTFLoader().load(url, resolve);
+    });
+  }; */
 
   return {
     // Pipeline modules need a name. It can be whatever you want but must be unique within your app.

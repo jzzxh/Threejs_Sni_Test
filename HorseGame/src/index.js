@@ -109,6 +109,14 @@ const raycaster = new THREE.Raycaster();
 const tapPosition = new THREE.Vector2();
 var surface; // Transparent surface for raycasting for object placement.
 
+const loadmodelT = function(url) {
+  return new Promise(resolve => {
+    new THREE.GLTFLoader().load(url, resolve);
+  });
+};
+
+var trackModel;
+
 function allEqual(arr) {
   // Checks array each slice all equal. object filter.
   let krr = [];
@@ -200,7 +208,7 @@ function createTrack(pointX, pointZ) {
       transparent: true,
     });
 
-    let mesh = new THREE.Mesh(geometry, material);
+    /*     let mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(pointX, 0, pointZ);
     mesh.rotation.set(-1.5, 0, 0);
     mesh.scale.set(
@@ -208,7 +216,9 @@ function createTrack(pointX, pointZ) {
       1.5 * svgGlbScalar * 0,
       1.5 * svgGlbScalar * 0
     );
-    global_Scene.add(mesh);
+    global_Scene.add(mesh); */
+
+    trackModel.position.set(pointX, 0, pointZ);
 
     // create horse scene
     createHorseScene(pointX, pointZ);
@@ -239,11 +249,16 @@ function createTrack(pointX, pointZ) {
       .to({ sc: 1 }, 1300) // Move to (300, 200) in 1 second.
       .easing(TWEEN.Easing.Elastic.Out) // Use an easing function to make the animation smooth.
       .onUpdate(() => {
-        mesh.scale.set(
+        trackModel.scale.set(
+          0.875 * svgGlbScalar * scAll.sc,
+          0.875 * svgGlbScalar * scAll.sc,
+          0.875 * svgGlbScalar * scAll.sc
+        );
+        /*         mesh.scale.set(
           1.5 * svgGlbScalar * scAll.sc,
           1.5 * svgGlbScalar * scAll.sc,
           1.5 * svgGlbScalar * scAll.sc
-        );
+        ); */
       })
       .start();
   });
@@ -393,6 +408,14 @@ const imageTargetPipelineModule = () => {
 
     //mutation oberve
     mutationInit();
+
+    //* load glb track
+    loadmodelT("./model/Truck3d_d6.glb").then(result => { //* Track3d_d6.glb is final file
+      trackModel = result.scene;
+      trackModel.position.set(0, 0, 0);
+      trackModel.scale.set(0, 0, 0);
+      scene.add(trackModel);
+    });
 
     //* End Custom Code
 

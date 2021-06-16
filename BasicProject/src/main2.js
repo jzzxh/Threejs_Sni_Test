@@ -69,11 +69,11 @@ var rankHorseImg = [
   "./image/horseP3.png",
   "./image/horseP4.png",
 ];
-var rankHorseChooseImg =[
+var rankHorseChooseImg = [
   "./image/rankch_p1.png",
   "./image/rankch_p2.png",
   "./image/rankch_p3.png",
-  "./image/rankch_p4.png"
+  "./image/rankch_p4.png",
 ];
 
 // temp data
@@ -85,6 +85,15 @@ var imgList = [
   "./image/horsew3.png",
 ];
  */
+
+var trackmodel;
+
+const loadmodelS = function(url) {
+  return new Promise(resolve => {
+    new THREE.GLTFLoader().load(url, resolve);
+  });
+};
+
 function init() {
   const container = document.querySelector("#scene-container");
 
@@ -198,10 +207,10 @@ function init() {
   imgShow.style.display = "none"; */
 
   // choose indicate object
-  const geometry = new THREE.ConeGeometry( 0.8, 2.8, 20 );
+  const geometry = new THREE.ConeGeometry(0.8, 2.8, 20);
   const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
   indicateObject = new THREE.Mesh(geometry, material);
-  indicateObject.scale.set(0.5,0.3,0.5);
+  indicateObject.scale.set(0.5, 0.3, 0.5);
   indicateObject.rotation.z = Math.PI;
   scene.add(indicateObject);
 
@@ -246,10 +255,20 @@ function init() {
 
   console.log(HorseObjectArr);
 
+  
+    //* load glb track
+    loadmodelS("./model/Truck3d_d3.glb").then(result => {
+      model = result.scene;
+      model.position.set(0, 0, 0);
+      model.scale.set(1, 1, 1);
+      scene.add(model);
+    });
+
+
   //* End Custom Code
 
   // Light Setup
-  lightPosition = {
+  let lightPosition = {
     lgihtT: new THREE.Vector3(0, 5, 0),
     lightL: new THREE.Vector3(-10, 5, 0),
     lightR: new THREE.Vector3(10, 5, 0),
@@ -258,7 +277,7 @@ function init() {
   };
 
   for (let lightIns in lightPosition) {
-    let dirLight = new THREE.DirectionalLight(0xffffff, 2);
+    let dirLight = new THREE.DirectionalLight(0xffffff, 3);
     dirLight.position.copy(lightPosition[lightIns]);
     scene.add(dirLight);
   }
@@ -354,9 +373,9 @@ function render() {
       // show choose indicate top of horse
       if (HorseObjectArr[j].userChoose == 1) {
         indicateObject.position.set(
-          HorseObjectArr[j].model.position.x ,
+          HorseObjectArr[j].model.position.x,
           HorseObjectArr[j].model.position.y + 4,
-          HorseObjectArr[j].model.position.z 
+          HorseObjectArr[j].model.position.z
         );
       }
     }
