@@ -132,12 +132,12 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
 }
 
-function mutationCallback(mutationRecord) {
+/* function mutationCallback(mutationRecord) {
   RankState = false;
-}
+} */
 
 function mutationInit() {
-  const observer = new MutationObserver(mutationCallback);
+/*   const observer = new MutationObserver(mutationCallback);
   const config = {
     attributes: true,
     attributeOldValue: true,
@@ -146,7 +146,7 @@ function mutationInit() {
 
   let resultContainer = document.querySelector(".resultPage");
 
-  observer.observe(resultContainer, config);
+  observer.observe(resultContainer, config); */
 }
 
 function createHorseScene(pointX, pointZ) {
@@ -407,7 +407,7 @@ const imageTargetPipelineModule = () => {
     console.log(HorseObjectArr);
 
     //mutation oberve
-    mutationInit();
+    // mutationInit();
 
     //* load glb track
     loadmodelT("./model/Truck3d_d6.glb").then(result => { //* Track3d_d6.glb is final file

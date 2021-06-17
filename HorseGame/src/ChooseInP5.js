@@ -279,6 +279,10 @@ var ChooseSketch = function($) {
     elem.setAttribute("height", "100%");
     ResultContainer.appendChild(elem);
 
+    elem.addEventListener('load',function(){
+      RankState = false;
+    });
+
    /*  RankState = false; */
 
     // const RankContainer = document.querySelector(".rankPage");
